@@ -31,9 +31,6 @@ jobs:
   integration-test:
     runs-on: ubuntu-latest
     name: Integration test
-    env:
-      JWT_SECRET: ${{ secrets.JWT_SECRET }}
-      REFREST_SECRET: ${{ secrets.REFREST_SECRET }}
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v1
@@ -44,11 +41,17 @@ jobs:
         with:
           python-version: '3.8'
       - run: pip install -Ur requirements.txt
-      - run: JWT_SECRET=${{ env.JWT_SECRET }} REFRESH_SECRET=${{ env.REFRESH_SECRET }} make integration-tests
+      - run: |
+          JWT_SECRET=${{ secrets.JWT_SECRET }} \
+          REFRESH_SECRET=${{ secrets.REFRESH_SECRET }} \
+          TEST_VALID_BASIC_JWT=${{ secrets.TEST_VALID_BASIC_JWT }} \
+          TEST_VALID_ADMIN_JWT=${{ secrets.TEST_VALID_ADMIN_JWT }} \
+          TEST_INVALID_JWT=${{ secrets.TEST_INVALID_JWT }} \
+          make integration-tests
   deploy:
     needs: [lint, unit-test, integration-test]
     runs-on: ubuntu-latest
-    name: Integration test
+    name: Deploy
     env:
       JWT_SECRET: ${{ secrets.JWT_SECRET }}
       REFRESH_SECRET: ${{ secrets.REFRESH_SECRET }}
