@@ -18,7 +18,6 @@ x-setup-node: &setup-node
   uses: actions/setup-node@v1
   with:
     node-version: '12.x'
-  run: yarn
 
 x-setup-python: &setup-python
   name: Setup python
@@ -41,8 +40,8 @@ jobs:
     steps:
       - <<: *checkout-code
       - <<: *setup-python
-      - name: Run black linter
-        run: make lint
+      - run: pip install -Ur requirements.txt
+      - run: make lint
   unit-test:
     runs-on: ubuntu-latest
     name: Unit test
@@ -51,8 +50,8 @@ jobs:
     steps:
       - <<: *checkout-code
       - <<: *setup-python
-      - name: Run unit tests
-        run: JWT_SECRET=${{ env.JWT_SECRET }} REFRESH_SECRET=${{ env.REFRESH_SECRET }} make unit-tests
+      - run: pip install -Ur requirements.txt
+      - run: JWT_SECRET=${{ env.JWT_SECRET }} REFRESH_SECRET=${{ env.REFRESH_SECRET }} make unit-tests
   integration-test:
     runs-on: ubuntu-latest
     name: Integration test
@@ -60,8 +59,9 @@ jobs:
       - <<: *checkout-code
       - <<: *setup-node
       - <<: *setup-python
-      - name: Run integration tests
-        run: |
+      - run: yarn
+      - run: pip install -Ur requirements.txt
+      - run: |
           JWT_SECRET=${{ secrets.JWT_SECRET }} \
           REFRESH_SECRET=${{ secrets.REFRESH_SECRET }} \
           TEST_VALID_BASIC_JWT=${{ secrets.TEST_VALID_BASIC_JWT }} \
@@ -82,11 +82,11 @@ jobs:
       - <<: *checkout-code
       - <<: *setup-node
       - <<: *setup-python
-      - name: Generate secrets
-        run: JWT_SECRET=${{ env.JWT_SECRET }} REFRESH_SECRET=${{ env.REFRESH_SECRET }} make generate-secrets
       - <<: *aws-creds
-      - name: Run deploy
-        run: yarn serverless deploy -s dev
+      - run: yarn
+      - run: pip install -Ur requirements.txt
+      - run: JWT_SECRET=${{ env.JWT_SECRET }} REFRESH_SECRET=${{ env.REFRESH_SECRET }} make generate-secrets
+      - run: yarn serverless deploy -s dev
   integration-test-remote:
     runs-on: ubuntu-latest
     needs:
@@ -97,8 +97,9 @@ jobs:
       - <<: *setup-node
       - <<: *setup-python
       - <<: *aws-creds
-      - name: Run integration tests
-        run: |
+      - run: yarn
+      - run: pip install -Ur requirements.txt
+      - run: |
           JWT_SECRET=${{ secrets.JWT_SECRET }} \
           REFRESH_SECRET=${{ secrets.REFRESH_SECRET }} \
           TEST_VALID_BASIC_JWT=${{ secrets.TEST_VALID_BASIC_JWT }} \
@@ -117,11 +118,11 @@ jobs:
       - <<: *checkout-code
       - <<: *setup-node
       - <<: *setup-python
-      - name: Generate secrets
-        run: JWT_SECRET=${{ env.JWT_SECRET }} REFRESH_SECRET=${{ env.REFRESH_SECRET }} make generate-secrets
       - <<: *aws-creds
-      - name: Run deploy
-        run: yarn serverless deploy -s prod
+      - run: yarn
+      - run: pip install -Ur requirements.txt
+      - run: JWT_SECRET=${{ env.JWT_SECRET }} REFRESH_SECRET=${{ env.REFRESH_SECRET }} make generate-secrets
+      - run: yarn serverless deploy -s prod
   smoke-test:
     runs-on: ubuntu-latest
     needs:
@@ -132,8 +133,9 @@ jobs:
       - <<: *setup-node
       - <<: *setup-python
       - <<: *aws-creds
-      - name: Run smoke tests
-        run: |
+      - run: yarn
+      - run: pip install -Ur requirements.txt
+      - run: |
           JWT_SECRET=${{ secrets.JWT_SECRET }} \
           REFRESH_SECRET=${{ secrets.REFRESH_SECRET }} \
           TEST_VALID_BASIC_JWT=${{ secrets.TEST_VALID_BASIC_JWT }} \

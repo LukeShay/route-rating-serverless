@@ -1,7 +1,6 @@
 name: CI
 on: [push]
 
-jobs:
   lint:
     runs-on: ubuntu-latest
     name: Lint
@@ -16,8 +15,8 @@ jobs:
       with:
         python-version: '3.8'
       run: pip install -Ur requirements.txt
-    - name: Run black linter
-      run: make lint
+    - run: pip install -Ur requirements.txt
+    - run: make lint
   unit-test:
     runs-on: ubuntu-latest
     name: Unit test
@@ -32,8 +31,8 @@ jobs:
       with:
         python-version: '3.8'
       run: pip install -Ur requirements.txt
-    - name: Run unit tests
-      run: JWT_SECRET=${{ env.JWT_SECRET }} REFRESH_SECRET=${{ env.REFRESH_SECRET }} make unit-tests
+    - run: pip install -Ur requirements.txt
+    - run: JWT_SECRET=${{ env.JWT_SECRET }} REFRESH_SECRET=${{ env.REFRESH_SECRET }} make unit-tests
   integration-test:
     runs-on: ubuntu-latest
     name: Integration test
@@ -44,14 +43,14 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: 12.x
-      run: yarn
     - name: Setup python
       uses: actions/setup-python@v1
       with:
         python-version: '3.8'
       run: pip install -Ur requirements.txt
-    - name: Run integration tests
-      run: |
+    - run: yarn
+    - run: pip install -Ur requirements.txt
+    - run: |
         JWT_SECRET=${{ secrets.JWT_SECRET }} \
         REFRESH_SECRET=${{ secrets.REFRESH_SECRET }} \
         TEST_VALID_BASIC_JWT=${{ secrets.TEST_VALID_BASIC_JWT }} \
@@ -76,21 +75,20 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: 12.x
-      run: yarn
     - name: Setup python
       uses: actions/setup-python@v1
       with:
         python-version: '3.8'
       run: pip install -Ur requirements.txt
-    - name: Generate secrets
-      run: JWT_SECRET=${{ env.JWT_SECRET }} REFRESH_SECRET=${{ env.REFRESH_SECRET }} make generate-secrets
     - uses: aws-actions/configure-aws-credentials@v1
       with:
         aws-access-key-id: "${{ secrets.AWS_ACCESS_KEY_ID }}"
         aws-secret-access-key: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
         aws-region: us-east-2
-    - name: Run deploy
-      run: yarn serverless deploy -s dev
+    - run: yarn
+    - run: pip install -Ur requirements.txt
+    - run: JWT_SECRET=${{ env.JWT_SECRET }} REFRESH_SECRET=${{ env.REFRESH_SECRET }} make generate-secrets
+    - run: yarn serverless deploy -s dev
   integration-test-remote:
     runs-on: ubuntu-latest
     needs:
@@ -103,7 +101,6 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: 12.x
-      run: yarn
     - name: Setup python
       uses: actions/setup-python@v1
       with:
@@ -114,8 +111,9 @@ jobs:
         aws-access-key-id: "${{ secrets.AWS_ACCESS_KEY_ID }}"
         aws-secret-access-key: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
         aws-region: us-east-2
-    - name: Run integration tests
-      run: |
+    - run: yarn
+    - run: pip install -Ur requirements.txt
+    - run: |
         JWT_SECRET=${{ secrets.JWT_SECRET }} \
         REFRESH_SECRET=${{ secrets.REFRESH_SECRET }} \
         TEST_VALID_BASIC_JWT=${{ secrets.TEST_VALID_BASIC_JWT }} \
@@ -138,21 +136,20 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: 12.x
-      run: yarn
     - name: Setup python
       uses: actions/setup-python@v1
       with:
         python-version: '3.8'
       run: pip install -Ur requirements.txt
-    - name: Generate secrets
-      run: JWT_SECRET=${{ env.JWT_SECRET }} REFRESH_SECRET=${{ env.REFRESH_SECRET }} make generate-secrets
     - uses: aws-actions/configure-aws-credentials@v1
       with:
         aws-access-key-id: "${{ secrets.AWS_ACCESS_KEY_ID }}"
         aws-secret-access-key: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
         aws-region: us-east-2
-    - name: Run deploy
-      run: yarn serverless deploy -s prod
+    - run: yarn
+    - run: pip install -Ur requirements.txt
+    - run: JWT_SECRET=${{ env.JWT_SECRET }} REFRESH_SECRET=${{ env.REFRESH_SECRET }} make generate-secrets
+    - run: yarn serverless deploy -s prod
   smoke-test:
     runs-on: ubuntu-latest
     needs:
@@ -165,7 +162,6 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: 12.x
-      run: yarn
     - name: Setup python
       uses: actions/setup-python@v1
       with:
@@ -176,8 +172,9 @@ jobs:
         aws-access-key-id: "${{ secrets.AWS_ACCESS_KEY_ID }}"
         aws-secret-access-key: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
         aws-region: us-east-2
-    - name: Run smoke tests
-      run: |
+    - run: yarn
+    - run: pip install -Ur requirements.txt
+    - run: |
         JWT_SECRET=${{ secrets.JWT_SECRET }} \
         REFRESH_SECRET=${{ secrets.REFRESH_SECRET }} \
         TEST_VALID_BASIC_JWT=${{ secrets.TEST_VALID_BASIC_JWT }} \
