@@ -1,14 +1,13 @@
----
 name: CI
-'true':
-- push
+on:
+  - push
 jobs:
   lint:
     runs-on: ubuntu-latest
     name: Lint
     env:
       JWT_SECRET: "${{ secrets.JWT_SECRET }}"
-      REFREST_SECRET: "${{ secrets.REFREST_SECRET }}"
+      REFREST_SECRET: "${{ secrets.REFRESH_SECRET }}"
     steps:
     - uses: actions/checkout@v2
     - uses: actions/setup-python@v1
@@ -21,7 +20,7 @@ jobs:
     name: Unit test
     env:
       JWT_SECRET: "${{ secrets.JWT_SECRET }}"
-      REFREST_SECRET: "${{ secrets.REFREST_SECRET }}"
+      REFREST_SECRET: "${{ secrets.REFRESH_SECRET }}"
     steps:
     - uses: actions/checkout@v2
     - uses: actions/setup-python@v1
@@ -58,7 +57,7 @@ jobs:
     name: Deploy dev
     env:
       JWT_SECRET: "${{ secrets.JWT_SECRET }}"
-      REFRESH_SECRET: "${{ secrets.REFRESH_SECRET }}"
+      REFREST_SECRET: "${{ secrets.REFRESH_SECRET }}"
     if: github.ref == 'refs/heads/master'
     steps:
     - uses: actions/checkout@v2
@@ -106,7 +105,7 @@ jobs:
     name: Deploy prod
     env:
       JWT_SECRET: "${{ secrets.JWT_SECRET }}"
-      REFRESH_SECRET: "${{ secrets.REFRESH_SECRET }}"
+      REFREST_SECRET: "${{ secrets.REFRESH_SECRET }}"
     if: github.ref == 'refs/heads/master'
     steps:
     - uses: actions/checkout@v2
