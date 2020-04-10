@@ -1,6 +1,6 @@
 TAG=sha-$(shell git rev-parse --short HEAD)$(shell git diff --quiet || echo ".uncommitted")
 
-.PHONY: default help lint format clean integration-tests deploy generate-secrets unit-tests integration-tests-remote
+.PHONY: default help lint format clean integration-tests deploy generate-secrets unit-tests integration-tests-remote smoke-test
 
 default: help
 
@@ -22,11 +22,15 @@ unit-tests:
 
 ## runs the integration tests using yarn serverless local
 integration-tests:
-	@./integration/test.sh test-local
+	@./integration/test.sh test-local dev
 
-## runs the integration tests using yarn serverless
+## runs the integration tests using yarn serverless on dev
 integration-tests-remote:
-	@./integration/test.sh test-remote
+	@./integration/test.sh test-remote dev
+
+## runs the integration tests using yarn serverless on prod
+smoke-test:
+	@./integration/test.sh test-remote prod
 
 ## cleans all temp files
 clean:
