@@ -6,6 +6,28 @@ x-secret-envs: &secret-envs
   JWT_SECRET: ${{ secrets.JWT_SECRET }}
   REFREST_SECRET: ${{ secrets.REFRESH_SECRET }}
 
+x-aws-creds: &aws-creds
+  uses: aws-actions/configure-aws-credentials@v1
+  with:
+    aws-access-key-id: "${{ secrets.AWS_ACCESS_KEY_ID }}"
+    aws-secret-access-key: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+    aws-region: us-east-2
+
+x-setup-node: &setup-node
+  name: Setup node
+  uses: actions/setup-node@v1
+  with:
+    node-version: '12.x'
+  run: yarn
+
+x-setup-python: &setup-python
+  name: Setup python
+  uses: actions/setup-python@v1
+  with:
+    python-version: '3.8'
+  run: pip install -Ur requirements.txt
+
+
 jobs:
   lint:
     runs-on: ubuntu-latest
@@ -14,10 +36,7 @@ jobs:
       <<: *secret-envs
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-python@v1
-        with:
-          python-version: '3.8'
-      - run: pip install -Ur requirements.txt
+      - <<: *setup-python
       - run: make lint
   unit-test:
     runs-on: ubuntu-latest
@@ -26,24 +45,15 @@ jobs:
       <<: *secret-envs
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-python@v1
-        with:
-          python-version: '3.8'
-      - run: pip install -Ur requirements.txt
+      - <<: *setup-python
       - run: JWT_SECRET=${{ env.JWT_SECRET }} REFRESH_SECRET=${{ env.REFRESH_SECRET }} make unit-tests
   integration-test:
     runs-on: ubuntu-latest
     name: Integration test
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-node@v1
-        with:
-          node-version: '12.x'
-      - run: yarn
-      - uses: actions/setup-python@v1
-        with:
-          python-version: '3.8'
-      - run: pip install -Ur requirements.txt
+      - <<: *setup-node
+      - <<: *setup-python
       - run: |
           JWT_SECRET=${{ secrets.JWT_SECRET }} \
           REFRESH_SECRET=${{ secrets.REFRESH_SECRET }} \
@@ -63,20 +73,10 @@ jobs:
     if: github.ref == 'refs/heads/master'
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-node@v1
-        with:
-          node-version: '12.x'
-      - run: yarn
-      - uses: actions/setup-python@v1
-        with:
-          python-version: '3.8'
-      - run: pip install -Ur requirements.txt
+      - <<: *setup-node
+      - <<: *setup-python
       - run: JWT_SECRET=${{ env.JWT_SECRET }} REFRESH_SECRET=${{ env.REFRESH_SECRET }} make generate-secrets
-      - uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-2
+      - <<: *aws-creds
       - run: yarn serverless deploy -s dev
   integration-test-remote:
     runs-on: ubuntu-latest
@@ -85,14 +85,9 @@ jobs:
     name: Integration test remote
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-node@v1
-        with:
-          node-version: '12.x'
-      - run: yarn
-      - uses: actions/setup-python@v1
-        with:
-          python-version: '3.8'
-      - run: pip install -Ur requirements.txt
+      - <<: *setup-node
+      - <<: *setup-python
+      - <<: *aws-creds
       - run: |
           JWT_SECRET=${{ secrets.JWT_SECRET }} \
           REFRESH_SECRET=${{ secrets.REFRESH_SECRET }} \
@@ -110,20 +105,10 @@ jobs:
     if: github.ref == 'refs/heads/master'
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-node@v1
-        with:
-          node-version: '12.x'
-      - run: yarn
-      - uses: actions/setup-python@v1
-        with:
-          python-version: '3.8'
-      - run: pip install -Ur requirements.txt
+      - <<: *setup-node
+      - <<: *setup-python
       - run: JWT_SECRET=${{ env.JWT_SECRET }} REFRESH_SECRET=${{ env.REFRESH_SECRET }} make generate-secrets
-      - uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-2
+      - <<: *aws-creds
       - run: yarn serverless deploy -s prod
   smoke-test:
     runs-on: ubuntu-latest
@@ -132,14 +117,9 @@ jobs:
     name: Smoke test
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-node@v1
-        with:
-          node-version: '12.x'
-      - run: yarn
-      - uses: actions/setup-python@v1
-        with:
-          python-version: '3.8'
-      - run: pip install -Ur requirements.txt
+      - <<: *setup-node
+      - <<: *setup-python
+      - <<: *aws-creds
       - run: |
           JWT_SECRET=${{ secrets.JWT_SECRET }} \
           REFRESH_SECRET=${{ secrets.REFRESH_SECRET }} \

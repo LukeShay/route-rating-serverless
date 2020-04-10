@@ -10,10 +10,11 @@ jobs:
       REFREST_SECRET: "${{ secrets.REFRESH_SECRET }}"
     steps:
     - uses: actions/checkout@v2
-    - uses: actions/setup-python@v1
+    - name: Setup python
+      uses: actions/setup-python@v1
       with:
         python-version: '3.8'
-    - run: pip install -Ur requirements.txt
+      run: pip install -Ur requirements.txt
     - run: make lint
   unit-test:
     runs-on: ubuntu-latest
@@ -23,24 +24,27 @@ jobs:
       REFREST_SECRET: "${{ secrets.REFRESH_SECRET }}"
     steps:
     - uses: actions/checkout@v2
-    - uses: actions/setup-python@v1
+    - name: Setup python
+      uses: actions/setup-python@v1
       with:
         python-version: '3.8'
-    - run: pip install -Ur requirements.txt
+      run: pip install -Ur requirements.txt
     - run: JWT_SECRET=${{ env.JWT_SECRET }} REFRESH_SECRET=${{ env.REFRESH_SECRET }} make unit-tests
   integration-test:
     runs-on: ubuntu-latest
     name: Integration test
     steps:
     - uses: actions/checkout@v2
-    - uses: actions/setup-node@v1
+    - name: Setup node
+      uses: actions/setup-node@v1
       with:
         node-version: 12.x
-    - run: yarn
-    - uses: actions/setup-python@v1
+      run: yarn
+    - name: Setup python
+      uses: actions/setup-python@v1
       with:
         python-version: '3.8'
-    - run: pip install -Ur requirements.txt
+      run: pip install -Ur requirements.txt
     - run: |
         JWT_SECRET=${{ secrets.JWT_SECRET }} \
         REFRESH_SECRET=${{ secrets.REFRESH_SECRET }} \
@@ -61,14 +65,16 @@ jobs:
     if: github.ref == 'refs/heads/master'
     steps:
     - uses: actions/checkout@v2
-    - uses: actions/setup-node@v1
+    - name: Setup node
+      uses: actions/setup-node@v1
       with:
         node-version: 12.x
-    - run: yarn
-    - uses: actions/setup-python@v1
+      run: yarn
+    - name: Setup python
+      uses: actions/setup-python@v1
       with:
         python-version: '3.8'
-    - run: pip install -Ur requirements.txt
+      run: pip install -Ur requirements.txt
     - run: JWT_SECRET=${{ env.JWT_SECRET }} REFRESH_SECRET=${{ env.REFRESH_SECRET }} make generate-secrets
     - uses: aws-actions/configure-aws-credentials@v1
       with:
@@ -83,14 +89,21 @@ jobs:
     name: Integration test remote
     steps:
     - uses: actions/checkout@v2
-    - uses: actions/setup-node@v1
+    - name: Setup node
+      uses: actions/setup-node@v1
       with:
         node-version: 12.x
-    - run: yarn
-    - uses: actions/setup-python@v1
+      run: yarn
+    - name: Setup python
+      uses: actions/setup-python@v1
       with:
         python-version: '3.8'
-    - run: pip install -Ur requirements.txt
+      run: pip install -Ur requirements.txt
+    - uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: "${{ secrets.AWS_ACCESS_KEY_ID }}"
+        aws-secret-access-key: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+        aws-region: us-east-2
     - run: |
         JWT_SECRET=${{ secrets.JWT_SECRET }} \
         REFRESH_SECRET=${{ secrets.REFRESH_SECRET }} \
@@ -109,14 +122,16 @@ jobs:
     if: github.ref == 'refs/heads/master'
     steps:
     - uses: actions/checkout@v2
-    - uses: actions/setup-node@v1
+    - name: Setup node
+      uses: actions/setup-node@v1
       with:
         node-version: 12.x
-    - run: yarn
-    - uses: actions/setup-python@v1
+      run: yarn
+    - name: Setup python
+      uses: actions/setup-python@v1
       with:
         python-version: '3.8'
-    - run: pip install -Ur requirements.txt
+      run: pip install -Ur requirements.txt
     - run: JWT_SECRET=${{ env.JWT_SECRET }} REFRESH_SECRET=${{ env.REFRESH_SECRET }} make generate-secrets
     - uses: aws-actions/configure-aws-credentials@v1
       with:
@@ -131,14 +146,21 @@ jobs:
     name: Smoke test
     steps:
     - uses: actions/checkout@v2
-    - uses: actions/setup-node@v1
+    - name: Setup node
+      uses: actions/setup-node@v1
       with:
         node-version: 12.x
-    - run: yarn
-    - uses: actions/setup-python@v1
+      run: yarn
+    - name: Setup python
+      uses: actions/setup-python@v1
       with:
         python-version: '3.8'
-    - run: pip install -Ur requirements.txt
+      run: pip install -Ur requirements.txt
+    - uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: "${{ secrets.AWS_ACCESS_KEY_ID }}"
+        aws-secret-access-key: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+        aws-region: us-east-2
     - run: |
         JWT_SECRET=${{ secrets.JWT_SECRET }} \
         REFRESH_SECRET=${{ secrets.REFRESH_SECRET }} \
