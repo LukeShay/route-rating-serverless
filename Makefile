@@ -32,10 +32,6 @@ integration-tests-remote:
 clean:
 	@rm -rf .pytest_cache test_output .coverage rli.egg-info .pytest_cache .scannerwork
 
-## runs the integration smoke test
-integration-test:
-	@./scripts/integration_test.sh
-
 ## deploys local version to aws dev env
 deploy: generate-secrets
 	@yarn serverless deploy
