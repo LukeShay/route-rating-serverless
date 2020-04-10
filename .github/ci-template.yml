@@ -26,6 +26,10 @@ x-setup-python: &setup-python
   with:
     python-version: '3.8'
   run: pip install -Ur requirements.txt
+  
+x-checkout-code: &checkout-code
+  name: Checkout code
+  uses: actions/checkout@v2
 
 
 jobs:
@@ -35,7 +39,7 @@ jobs:
     env:
       <<: *secret-envs
     steps:
-      - uses: actions/checkout@v2
+      - <<: *checkout-code
       - <<: *setup-python
       - name: Run black linter
         run: make lint
@@ -45,7 +49,7 @@ jobs:
     env:
       <<: *secret-envs
     steps:
-      - uses: actions/checkout@v2
+      - <<: *checkout-code
       - <<: *setup-python
       - name: Run unit tests
         run: JWT_SECRET=${{ env.JWT_SECRET }} REFRESH_SECRET=${{ env.REFRESH_SECRET }} make unit-tests
@@ -53,7 +57,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Integration test
     steps:
-      - uses: actions/checkout@v2
+      - <<: *checkout-code
       - <<: *setup-node
       - <<: *setup-python
       - name: Run integration tests
@@ -75,7 +79,7 @@ jobs:
       <<: *secret-envs
     if: github.ref == 'refs/heads/master'
     steps:
-      - uses: actions/checkout@v2
+      - <<: *checkout-code
       - <<: *setup-node
       - <<: *setup-python
       - name: Generate secrets
@@ -89,7 +93,7 @@ jobs:
       - deploy-dev
     name: Integration test remote
     steps:
-      - uses: actions/checkout@v2
+      - <<: *checkout-code
       - <<: *setup-node
       - <<: *setup-python
       - <<: *aws-creds
@@ -110,7 +114,7 @@ jobs:
       <<: *secret-envs
     if: github.ref == 'refs/heads/master'
     steps:
-      - uses: actions/checkout@v2
+      - <<: *checkout-code
       - <<: *setup-node
       - <<: *setup-python
       - name: Generate secrets
@@ -124,7 +128,7 @@ jobs:
       - deploy-prod
     name: Smoke test
     steps:
-      - uses: actions/checkout@v2
+      - <<: *checkout-code
       - <<: *setup-node
       - <<: *setup-python
       - <<: *aws-creds
