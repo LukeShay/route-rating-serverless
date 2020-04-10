@@ -27,7 +27,7 @@ jobs:
         with:
           python-version: '3.8'
       - run: pip install -Ur requirements.txt
-      - run: make unit-tests
+      - run: JWT_SECRET=${{ env.JWT_SECRET }} REFRESH_SECRET=${{ env.REFRESH_SECRET }} make unit-tests
   integration-test:
     runs-on: ubuntu-latest
     name: Integration test
@@ -43,14 +43,14 @@ jobs:
         with:
           python-version: '3.8'
       - run: pip install -Ur requirements.txt
-      - run: make integration-tests
+      - run: JWT_SECRET=${{ env.JWT_SECRET }} REFRESH_SECRET=${{ env.REFRESH_SECRET }} make integration-tests
   deploy:
     needs: [lint, unit-test, integration-test]
     runs-on: ubuntu-latest
     name: Integration test
     env:
       JWT_SECRET: ${{ secrets.JWT_SECRET }}
-      REFREST_SECRET: ${{ secrets.REFREST_SECRET }}
+      REFRESH_SECRET: ${{ secrets.REFRESH_SECRET }}
     if: github.ref == 'refs/heads/master'
     steps:
       - uses: actions/checkout@v2
@@ -61,7 +61,7 @@ jobs:
         with:
           python-version: '3.8'
       - run: pip install -Ur requirements.txt
-      - run: make generate-secrets
+      - run: JWT_SECRET=${{ env.JWT_SECRET }} REFRESH_SECRET=${{ env.REFRESH_SECRET }} make generate-secrets
       - uses: serverless/github-action@master
         with:
           args: deploy
