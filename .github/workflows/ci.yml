@@ -1,9 +1,6 @@
 name: CI
 on: [push]
 
-x-checkout-code:
-  name: Checkout code
-  uses: actions/checkout@v2
 jobs:
   lint:
     runs-on: ubuntu-latest
