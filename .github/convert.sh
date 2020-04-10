@@ -1,10 +1,10 @@
-#!/usr/bin/env ruby
+#!/usr/bin/env bash
 
-require "yaml"
-require "json"
+./.github/generate.sh
 
-yaml = YAML.load_file(File.expand_path("ci-template.yml", __dir__))
+YAML=$(tail -n +8 .github/workflows/ci.yml)
 
-File.write(File.expand_path("workflows/ci.yml", __dir__), YAML.load(yaml.to_json).to_yaml(line_width: 1024))
-
-puts "Workflow emitted!"
+echo "name: CI" > .github/workflows/ci.yml
+echo "on: [push]" >> .github/workflows/ci.yml
+echo "" >> .github/workflows/ci.yml
+echo "${YAML}" >> .github/workflows/ci.yml

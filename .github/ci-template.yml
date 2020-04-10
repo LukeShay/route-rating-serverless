@@ -99,7 +99,7 @@ jobs:
           TEST_VALID_BASIC_JWT=${{ secrets.TEST_VALID_BASIC_JWT }} \
           TEST_VALID_ADMIN_JWT=${{ secrets.TEST_VALID_ADMIN_JWT }} \
           TEST_INVALID_JWT=${{ secrets.TEST_INVALID_JWT }} \
-          make itegration-tests-remote
+          make integration-tests-remote
   deploy-prod:
     needs:
       - integration-test-remote
