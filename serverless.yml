@@ -13,7 +13,7 @@ package:
 
 provider:
   name: aws
-  runtime: python3.8
+  runtime: python3.7
   region: ${opt:region, 'us-east-2'}
   versionFunctions: true
   role: arn:aws:iam::816188110262:role/LambdaRole
