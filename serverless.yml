@@ -1,0 +1,48 @@
+service: route-rating-serverless
+
+frameworkVersion: ">=1.2.0 <2.0.0"
+
+plugins:
+  - serverless-python-requirements
+
+package:
+  exclude:
+    - ./**
+  include:
+    - ./api/**
+
+provider:
+  name: aws
+  runtime: python3.8
+  region: ${opt:region, 'us-east-2'}
+  versionFunctions: true
+  role: arn:aws:iam::816188110262:role/LambdaRole
+  memorySize: 512
+  tags:
+    service: serverless-api
+
+functions:
+  basic-auth:
+    environment:
+      JWT_SECRET: ${file(./secrets.json):JWT_SECRET}
+      REFRESH_SECRET: ${file(./secrets.json):REFRESH_SECRET}
+      LOG: TRUE
+    handler: api/auth_handler.basic_auth_handler
+    tags:
+      service: auth-api
+    events:
+      - http:
+          path: auth/basic
+          method: post
+  admin-auth:
+    environment:
+      JWT_SECRET: ${file(./secrets.json):JWT_SECRET}
+      REFRESH_SECRET: ${file(./secrets.json):REFRESH_SECRET}
+      LOG: TRUE
+    handler: api/auth_handler.admin_auth_handler
+    tags:
+      service: auth-api
+    events:
+      - http:
+          path: auth/admin
+          method: post
