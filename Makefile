@@ -1,6 +1,6 @@
 TAG=sha-$(shell git rev-parse --short HEAD)$(shell git diff --quiet || echo ".uncommitted")
 
-.PHONY: default help lint format clean integration-test deploy generate-secrets
+.PHONY: default help lint format clean integration-tests deploy generate-secrets unit-tests integration-tests-remote
 
 default: help
 
@@ -31,10 +31,6 @@ integration-tests-remote:
 ## cleans all temp files
 clean:
 	@rm -rf .pytest_cache test_output .coverage rli.egg-info .pytest_cache .scannerwork
-
-## initializes the repo for development
-init:
-	@./scripts/init.sh
 
 ## runs the integration smoke test
 integration-test:
