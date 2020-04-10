@@ -4,7 +4,7 @@ on: [push]
 jobs:
   lint:
     runs-on: ubuntu-latest
-    name: Integration test
+    name: Lint
     env:
       JWT_SECRET: ${{ secrets.JWT_SECRET }}
       REFREST_SECRET: ${{ secrets.REFREST_SECRET }}
@@ -36,9 +36,10 @@ jobs:
       REFREST_SECRET: ${{ secrets.REFREST_SECRET }}
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/npm@master
+      - uses: actions/setup-node@v1
         with:
-          args: install
+          node-version: '12.x'
+      - run: yarn
       - uses: actions/setup-python@v1
         with:
           python-version: '3.8'
@@ -54,9 +55,10 @@ jobs:
     if: github.ref == 'refs/heads/master'
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/npm@master
+      - uses: actions/setup-node@v1
         with:
-          args: install
+          node-version: '12.x'
+      - run: yarn
       - uses: actions/setup-python@v1
         with:
           python-version: '3.8'
