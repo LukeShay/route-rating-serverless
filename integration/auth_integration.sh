@@ -13,24 +13,24 @@ check_status() {
 
 basic-local() {
     echo "Invoking local basic-auth with expected status ${2}..."
-    RESPONSE=$(sls invoke local -f basic-auth -d "$(data "${1}")")
+    RESPONSE=$(serverless invoke local -f basic-auth -d "$(data "${1}")")
     test $(echo "${RESPONSE}" | jq ".statusCode") = "${2}"
 }
 
 basic-remote() {
     echo "Invoking remote basic-auth with expected status ${2}..."
-    RESPONSE=$(sls invoke -f basic-auth -d "$(data "${1}")")
+    RESPONSE=$(serverless invoke -f basic-auth -d "$(data "${1}")")
     test $(echo "${RESPONSE}" | jq ".statusCode") = "${2}"
 }
 
 admin-local() {
     echo "Invoking local admin-auth with expected status ${2}..."
-    RESPONSE=$(sls invoke local -f admin-auth -d "$(data "${1}")")
+    RESPONSE=$(serverless invoke local -f admin-auth -d "$(data "${1}")")
     test $(echo "${RESPONSE}" | jq ".statusCode") = "${2}"
 }
 
 admin-remote() {
     echo "Invoking remote admin-auth with expected status ${2}..."
-    RESPONSE=$(sls invoke -f admin-auth -d "$(data "${1}")")
+    RESPONSE=$(serverless invoke -f admin-auth -d "$(data "${1}")")
     test $(echo "${RESPONSE}" | jq ".statusCode") = "${2}"
 }

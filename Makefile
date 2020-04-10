@@ -20,11 +20,11 @@ format:
 unit-tests:
 	@pytest --junitxml=./test_output/test-report.xml --cov=api --cov-report=xml:test_output/coverage.xml --cov-report=html:test_output/coverage tests
 
-## runs the integration tests using sls local
+## runs the integration tests using serverless local
 integration-tests:
 	@./integration/test.sh test-local
 
-## runs the integration tests using sls
+## runs the integration tests using serverless
 integration-tests-remote:
 	@./integration/test.sh test-remote
 
