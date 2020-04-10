@@ -10,7 +10,7 @@ help:
 
 ## lints the python files
 lint:
-	@black --check rli/ tests/
+	@black --check api/ tests/
 
 ## formats the python files
 format:
