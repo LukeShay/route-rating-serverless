@@ -47,11 +47,6 @@ jobs:
       with:
         python-version: '3.8'
     - run: yarn
-    - name: Upload node modules
-      uses: actions/upload-artifact@v1
-      with:
-        name: Node Modules
-        path: node_modules
     - run: pip install -Ur requirements.txt
     - run: |
         JWT_SECRET=${{ secrets.JWT_SECRET }} \
@@ -87,11 +82,7 @@ jobs:
         aws-access-key-id: "${{ secrets.AWS_ACCESS_KEY_ID }}"
         aws-secret-access-key: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
         aws-region: us-east-2
-    - name: Upload node modules
-      uses: actions/download-artifact@v1
-      with:
-        name: Node Modules
-        path: node_modules
+    - run: yarn
     - run: pip install -Ur requirements.txt
     - run: JWT_SECRET=${{ env.JWT_SECRET }} REFRESH_SECRET=${{ env.REFRESH_SECRET }} make generate-secrets
     - run: yarn serverless deploy -s dev
@@ -116,11 +107,7 @@ jobs:
         aws-access-key-id: "${{ secrets.AWS_ACCESS_KEY_ID }}"
         aws-secret-access-key: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
         aws-region: us-east-2
-    - name: Upload node modules
-      uses: actions/download-artifact@v1
-      with:
-        name: Node Modules
-        path: node_modules
+    - run: yarn
     - run: pip install -Ur requirements.txt
     - run: |
         JWT_SECRET=${{ secrets.JWT_SECRET }} \
@@ -154,11 +141,7 @@ jobs:
         aws-access-key-id: "${{ secrets.AWS_ACCESS_KEY_ID }}"
         aws-secret-access-key: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
         aws-region: us-east-2
-    - name: Upload node modules
-      uses: actions/download-artifact@v1
-      with:
-        name: Node Modules
-        path: node_modules
+    - run: yarn
     - run: pip install -Ur requirements.txt
     - run: JWT_SECRET=${{ env.JWT_SECRET }} REFRESH_SECRET=${{ env.REFRESH_SECRET }} make generate-secrets
     - run: yarn serverless deploy -s prod
@@ -183,11 +166,7 @@ jobs:
         aws-access-key-id: "${{ secrets.AWS_ACCESS_KEY_ID }}"
         aws-secret-access-key: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
         aws-region: us-east-2
-    - name: Upload node modules
-      uses: actions/download-artifact@v1
-      with:
-        name: Node Modules
-        path: node_modules
+    - run: yarn
     - run: pip install -Ur requirements.txt
     - run: |
         JWT_SECRET=${{ secrets.JWT_SECRET }} \

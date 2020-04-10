@@ -29,20 +29,6 @@ x-checkout-code: &checkout-code
   name: Checkout code
   uses: actions/checkout@v2
 
-x-upload-node-modules: &upload-node-modules
-  name: Upload node modules
-  uses: actions/upload-artifact@v1
-  with:
-    name: Node Modules
-    path: node_modules
-
-x-download-node-modules: &download-node-modules
-  name: Upload node modules
-  uses: actions/download-artifact@v1
-  with:
-    name: Node Modules
-    path: node_modules
-
 jobs:
   lint:
     runs-on: ubuntu-latest
@@ -72,7 +58,6 @@ jobs:
       - <<: *setup-node
       - <<: *setup-python
       - run: yarn
-      - <<: *upload-node-modules
       - run: pip install -Ur requirements.txt
       - run: |
           JWT_SECRET=${{ secrets.JWT_SECRET }} \
@@ -96,7 +81,7 @@ jobs:
       - <<: *setup-node
       - <<: *setup-python
       - <<: *aws-creds
-      - <<: *download-node-modules
+      - run: yarn
       - run: pip install -Ur requirements.txt
       - run: JWT_SECRET=${{ env.JWT_SECRET }} REFRESH_SECRET=${{ env.REFRESH_SECRET }} make generate-secrets
       - run: yarn serverless deploy -s dev
@@ -110,7 +95,7 @@ jobs:
       - <<: *setup-node
       - <<: *setup-python
       - <<: *aws-creds
-      - <<: *download-node-modules
+      - run: yarn
       - run: pip install -Ur requirements.txt
       - run: |
           JWT_SECRET=${{ secrets.JWT_SECRET }} \
@@ -132,7 +117,7 @@ jobs:
       - <<: *setup-node
       - <<: *setup-python
       - <<: *aws-creds
-      - <<: *download-node-modules
+      - run: yarn
       - run: pip install -Ur requirements.txt
       - run: JWT_SECRET=${{ env.JWT_SECRET }} REFRESH_SECRET=${{ env.REFRESH_SECRET }} make generate-secrets
       - run: yarn serverless deploy -s prod
@@ -146,7 +131,7 @@ jobs:
       - <<: *setup-node
       - <<: *setup-python
       - <<: *aws-creds
-      - <<: *download-node-modules
+      - run: yarn
       - run: pip install -Ur requirements.txt
       - run: |
           JWT_SECRET=${{ secrets.JWT_SECRET }} \
