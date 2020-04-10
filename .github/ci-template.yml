@@ -4,7 +4,7 @@ on:
 
 x-secret-envs: &secret-envs
   JWT_SECRET: ${{ secrets.JWT_SECRET }}
-  REFREST_SECRET: ${{ secrets.REFRESH_SECRET }}
+  REFRESH_SECRET: ${{ secrets.REFRESH_SECRET }}
 
 x-aws-creds: &aws-creds
   uses: aws-actions/configure-aws-credentials@v1
@@ -24,12 +24,10 @@ x-setup-python: &setup-python
   uses: actions/setup-python@v1
   with:
     python-version: '3.8'
-  run: pip install -Ur requirements.txt
-  
+
 x-checkout-code: &checkout-code
   name: Checkout code
   uses: actions/checkout@v2
-
 
 jobs:
   lint:

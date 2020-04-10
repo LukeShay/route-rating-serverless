@@ -7,7 +7,7 @@ jobs:
     name: Lint
     env:
       JWT_SECRET: "${{ secrets.JWT_SECRET }}"
-      REFREST_SECRET: "${{ secrets.REFRESH_SECRET }}"
+      REFRESH_SECRET: "${{ secrets.REFRESH_SECRET }}"
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
@@ -15,7 +15,6 @@ jobs:
       uses: actions/setup-python@v1
       with:
         python-version: '3.8'
-      run: pip install -Ur requirements.txt
     - run: pip install -Ur requirements.txt
     - run: make lint
   unit-test:
@@ -23,7 +22,7 @@ jobs:
     name: Unit test
     env:
       JWT_SECRET: "${{ secrets.JWT_SECRET }}"
-      REFREST_SECRET: "${{ secrets.REFRESH_SECRET }}"
+      REFRESH_SECRET: "${{ secrets.REFRESH_SECRET }}"
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
@@ -31,7 +30,6 @@ jobs:
       uses: actions/setup-python@v1
       with:
         python-version: '3.8'
-      run: pip install -Ur requirements.txt
     - run: pip install -Ur requirements.txt
     - run: JWT_SECRET=${{ env.JWT_SECRET }} REFRESH_SECRET=${{ env.REFRESH_SECRET }} make unit-tests
   integration-test:
@@ -48,7 +46,6 @@ jobs:
       uses: actions/setup-python@v1
       with:
         python-version: '3.8'
-      run: pip install -Ur requirements.txt
     - run: yarn
     - run: pip install -Ur requirements.txt
     - run: |
@@ -67,7 +64,7 @@ jobs:
     name: Deploy dev
     env:
       JWT_SECRET: "${{ secrets.JWT_SECRET }}"
-      REFREST_SECRET: "${{ secrets.REFRESH_SECRET }}"
+      REFRESH_SECRET: "${{ secrets.REFRESH_SECRET }}"
     if: github.ref == 'refs/heads/master'
     steps:
     - name: Checkout code
@@ -80,7 +77,6 @@ jobs:
       uses: actions/setup-python@v1
       with:
         python-version: '3.8'
-      run: pip install -Ur requirements.txt
     - uses: aws-actions/configure-aws-credentials@v1
       with:
         aws-access-key-id: "${{ secrets.AWS_ACCESS_KEY_ID }}"
@@ -106,7 +102,6 @@ jobs:
       uses: actions/setup-python@v1
       with:
         python-version: '3.8'
-      run: pip install -Ur requirements.txt
     - uses: aws-actions/configure-aws-credentials@v1
       with:
         aws-access-key-id: "${{ secrets.AWS_ACCESS_KEY_ID }}"
@@ -128,7 +123,7 @@ jobs:
     name: Deploy prod
     env:
       JWT_SECRET: "${{ secrets.JWT_SECRET }}"
-      REFREST_SECRET: "${{ secrets.REFRESH_SECRET }}"
+      REFRESH_SECRET: "${{ secrets.REFRESH_SECRET }}"
     if: github.ref == 'refs/heads/master'
     steps:
     - name: Checkout code
@@ -141,7 +136,6 @@ jobs:
       uses: actions/setup-python@v1
       with:
         python-version: '3.8'
-      run: pip install -Ur requirements.txt
     - uses: aws-actions/configure-aws-credentials@v1
       with:
         aws-access-key-id: "${{ secrets.AWS_ACCESS_KEY_ID }}"
@@ -167,7 +161,6 @@ jobs:
       uses: actions/setup-python@v1
       with:
         python-version: '3.8'
-      run: pip install -Ur requirements.txt
     - uses: aws-actions/configure-aws-credentials@v1
       with:
         aws-access-key-id: "${{ secrets.AWS_ACCESS_KEY_ID }}"
