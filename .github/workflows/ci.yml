@@ -64,7 +64,7 @@ jobs:
       - run: yarn
       - uses: actions/setup-python@v1
         with:
-          python-version: '3.8'
+          python-version: '3.7'
       - run: pip install -Ur requirements.txt
       - run: JWT_SECRET=${{ env.JWT_SECRET }} REFRESH_SECRET=${{ env.REFRESH_SECRET }} make generate-secrets
       - uses: serverless/github-action@master
