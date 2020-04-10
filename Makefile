@@ -16,9 +16,17 @@ lint:
 format:
 	@black api/ tests/
 
-## runs all tests
-test:
+## runs all unit tests
+unit-tests:
 	@pytest --junitxml=./test_output/test-report.xml --cov=api --cov-report=xml:test_output/coverage.xml --cov-report=html:test_output/coverage tests
+
+## runs the integration tests using sls local
+integration-tests:
+	@./integration/test.sh test-local
+
+## runs the integration tests using sls
+integration-tests-remote:
+	@./integration/test.sh test-remote
 
 ## cleans all temp files
 clean:
