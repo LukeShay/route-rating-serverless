@@ -1,9 +1,8 @@
 from unittest import TestCase
 
 from api.auth import Auth
-from api.auth_handler import basic_auth_handler, admin_auth_handler
+from api.handlers.auth_handler import basic_auth_handler, admin_auth_handler
 from tests.utilities import ApiGatewayEvent, generate_jwt, generate_refresh
-from unittest.mock import patch
 import os
 
 

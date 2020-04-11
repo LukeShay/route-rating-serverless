@@ -27,7 +27,7 @@ functions:
       JWT_SECRET: ${file(./secrets.json):JWT_SECRET}
       REFRESH_SECRET: ${file(./secrets.json):REFRESH_SECRET}
       LOG: TRUE
-    handler: api/auth_handler.basic_auth_handler
+    handler: api/handlers/auth_handler.basic_auth_handler
     tags:
       service: auth-api
     events:
@@ -39,7 +39,7 @@ functions:
       JWT_SECRET: ${file(./secrets.json):JWT_SECRET}
       REFRESH_SECRET: ${file(./secrets.json):REFRESH_SECRET}
       LOG: TRUE
-    handler: api/auth_handler.admin_auth_handler
+    handler: api/handlers/auth_handler.admin_auth_handler
     tags:
       service: auth-api
     events:
