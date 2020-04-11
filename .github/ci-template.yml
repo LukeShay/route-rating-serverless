@@ -38,7 +38,7 @@ jobs:
     steps:
       - <<: *checkout-code
       - <<: *setup-python
-      - run: pip install -Ur requirements.txt
+      - run: pip install -Ur requirements.txt -Ur requirements.dev.txt
       - run: make lint
   unit-test:
     runs-on: ubuntu-latest
@@ -48,7 +48,7 @@ jobs:
     steps:
       - <<: *checkout-code
       - <<: *setup-python
-      - run: pip install -Ur requirements.txt
+      - run: pip install -Ur requirements.txt -Ur requirements.dev.txt
       - run: JWT_SECRET=${{ env.JWT_SECRET }} REFRESH_SECRET=${{ env.REFRESH_SECRET }} make unit-tests
   integration-test:
     runs-on: ubuntu-latest
@@ -58,7 +58,7 @@ jobs:
       - <<: *setup-node
       - <<: *setup-python
       - run: yarn
-      - run: pip install -Ur requirements.txt
+      - run: pip install -Ur requirements.txt -Ur requirements.dev.txt
       - run: |
           JWT_SECRET=${{ secrets.JWT_SECRET }} \
           REFRESH_SECRET=${{ secrets.REFRESH_SECRET }} \
@@ -82,7 +82,7 @@ jobs:
       - <<: *setup-python
       - <<: *aws-creds
       - run: yarn
-      - run: pip install -Ur requirements.txt
+      - run: pip install -Ur requirements.txt -Ur requirements.dev.txt
       - run: JWT_SECRET=${{ env.JWT_SECRET }} REFRESH_SECRET=${{ env.REFRESH_SECRET }} make generate-secrets
       - run: yarn serverless deploy -s dev
   integration-test-remote:
@@ -96,7 +96,7 @@ jobs:
       - <<: *setup-python
       - <<: *aws-creds
       - run: yarn
-      - run: pip install -Ur requirements.txt
+      - run: pip install -Ur requirements.txt -Ur requirements.dev.txt
       - run: |
           JWT_SECRET=${{ secrets.JWT_SECRET }} \
           REFRESH_SECRET=${{ secrets.REFRESH_SECRET }} \
@@ -118,7 +118,7 @@ jobs:
       - <<: *setup-python
       - <<: *aws-creds
       - run: yarn
-      - run: pip install -Ur requirements.txt
+      - run: pip install -Ur requirements.txt -Ur requirements.dev.txt
       - run: JWT_SECRET=${{ env.JWT_SECRET }} REFRESH_SECRET=${{ env.REFRESH_SECRET }} make generate-secrets
       - run: yarn serverless deploy -s prod
   smoke-test:
@@ -132,7 +132,7 @@ jobs:
       - <<: *setup-python
       - <<: *aws-creds
       - run: yarn
-      - run: pip install -Ur requirements.txt
+      - run: pip install -Ur requirements.txt -Ur requirements.dev.txt
       - run: |
           JWT_SECRET=${{ secrets.JWT_SECRET }} \
           REFRESH_SECRET=${{ secrets.REFRESH_SECRET }} \

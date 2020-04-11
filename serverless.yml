@@ -11,6 +11,11 @@ package:
   include:
     - ./api/**
 
+x-common-lambda-env: &common-lambda-env
+  JWT_SECRET: ${file(./secrets.json):JWT_SECRET}
+  REFRESH_SECRET: ${file(./secrets.json):REFRESH_SECRET}
+  LOG: TRUE
+
 provider:
   name: aws
   runtime: python3.8
@@ -19,14 +24,12 @@ provider:
   role: arn:aws:iam::816188110262:role/LambdaRole
   memorySize: 512
   tags:
-    service: serverless-api
+    service: route-rating-serverless
 
 functions:
   basic-auth:
     environment:
-      JWT_SECRET: ${file(./secrets.json):JWT_SECRET}
-      REFRESH_SECRET: ${file(./secrets.json):REFRESH_SECRET}
-      LOG: TRUE
+      <<: *common-lambda-env
     handler: api/handlers/auth_handler.basic_auth_handler
     tags:
       service: auth-api
@@ -36,13 +39,21 @@ functions:
           method: post
   admin-auth:
     environment:
-      JWT_SECRET: ${file(./secrets.json):JWT_SECRET}
-      REFRESH_SECRET: ${file(./secrets.json):REFRESH_SECRET}
-      LOG: TRUE
+      <<: *common-lambda-env
     handler: api/handlers/auth_handler.admin_auth_handler
     tags:
       service: auth-api
     events:
       - http:
           path: auth/admin
+          method: post
+  login:
+    environment:
+      <<: *common-lambda-env
+    handler: api/handlers/auth_handler.login_handler
+    tags:
+      service: login-api
+    events:
+      - http:
+          path: auth/login
           method: post

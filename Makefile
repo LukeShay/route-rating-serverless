@@ -42,4 +42,4 @@ deploy: generate-secrets
 
 ## creates the secrets.json file
 generate-secrets:
-	@echo "{'JWT_SECRET': '${JWT_SECRET}', 'REFRESH_SECRET': '${REFRESH_SECRET}'}" | sed "s/'/\"/g" | jq . > secrets.json
+	@echo "{\"JWT_SECRET\": \"${JWT_SECRET}\",\"REFRESH_SECRET\": \"${REFRESH_SECRET}\",\"DATABASE_PASSWORD\": \"${DATABASE_PASSWORD_FOR_JSON}\",\"DATABASE_USERNAME\": \"${DATABASE_USERNAME}\",\"DATABASE_URL\": \"${DATABASE_URL}\"}" | jq . > secrets.json

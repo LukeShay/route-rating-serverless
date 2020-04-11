@@ -1,10 +1,10 @@
-from api.utils.logging_utils import log, setup_logger
+from api.utils.handler_utils import setup_logger
 import logging
 from unittest import TestCase
 import os
 
 
-class TestLoggingUtils(TestCase):
+class TestHandlerUtils(TestCase):
     def setUp(self) -> None:
         root = logging.getLogger()
 
@@ -26,21 +26,3 @@ class TestLoggingUtils(TestCase):
 
         root = logging.getLogger()
         self.assertEqual(0, len(root.handlers))
-
-    def test_log_decorator_false(self):
-        os.environ["LOG"] = "FALSE"
-        self.log_decorator()
-
-        root = logging.getLogger()
-        self.assertEqual(0, len(root.handlers))
-
-    def test_log_decorator_true(self):
-        os.environ["LOG"] = "TRUE"
-        self.log_decorator()
-
-        root = logging.getLogger()
-        self.assertEqual(1, len(root.handlers))
-
-    @log
-    def log_decorator(self):
-        return
