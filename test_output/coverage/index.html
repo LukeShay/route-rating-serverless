@@ -17,7 +17,7 @@
 <div id="header">
     <div class="content">
         <h1>Coverage report:
-            <span class="pc_cov">73%</span>
+            <span class="pc_cov">84.80%</span>
         </h1>
         <img id="keyboard_icon" src="keybd_closed.png" alt="Show keyboard shortcuts" />
         <form id="filter_container">
@@ -34,6 +34,8 @@
         <span class="key">s</span>
         <span class="key">m</span>
         <span class="key">x</span>
+        <span class="key">b</span>
+        <span class="key">p</span>
         <span class="key">c</span> &nbsp; change column sorting
     </p>
     </div>
@@ -46,16 +48,20 @@
                 <th class="shortkey_s">statements</th>
                 <th class="shortkey_m">missing</th>
                 <th class="shortkey_x">excluded</th>
+                <th class="shortkey_b">branches</th>
+                <th class="shortkey_p">partial</th>
                 <th class="right shortkey_c">coverage</th>
             </tr>
         </thead>
         <tfoot>
             <tr class="total">
                 <td class="name left">Total</td>
-                <td>267</td>
-                <td>72</td>
+                <td>218</td>
+                <td>30</td>
                 <td>0</td>
-                <td class="right" data-ratio="195 267">73%</td>
+                <td>32</td>
+                <td>4</td>
+                <td class="right" data-ratio="212 250">84.80%</td>
             </tr>
         </tfoot>
         <tbody>
@@ -64,84 +70,90 @@
                 <td>0</td>
                 <td>0</td>
                 <td>0</td>
-                <td class="right" data-ratio="0 0">100%</td>
+                <td>0</td>
+                <td>0</td>
+                <td class="right" data-ratio="0 0">100.00%</td>
             </tr>
             <tr class="file">
                 <td class="name left"><a href="api_api_gateway_py.html">api/api_gateway.py</a></td>
-                <td>43</td>
-                <td>3</td>
+                <td>47</td>
+                <td>2</td>
                 <td>0</td>
-                <td class="right" data-ratio="40 43">93%</td>
+                <td>8</td>
+                <td>3</td>
+                <td class="right" data-ratio="50 55">90.91%</td>
             </tr>
             <tr class="file">
                 <td class="name left"><a href="api_auth_py.html">api/auth.py</a></td>
-                <td>87</td>
-                <td>26</td>
+                <td>59</td>
                 <td>0</td>
-                <td class="right" data-ratio="61 87">70%</td>
+                <td>0</td>
+                <td>12</td>
+                <td>0</td>
+                <td class="right" data-ratio="71 71">100.00%</td>
             </tr>
             <tr class="file">
                 <td class="name left"><a href="api_handlers___init___py.html">api/handlers/__init__.py</a></td>
                 <td>0</td>
                 <td>0</td>
                 <td>0</td>
-                <td class="right" data-ratio="0 0">100%</td>
+                <td>0</td>
+                <td>0</td>
+                <td class="right" data-ratio="0 0">100.00%</td>
             </tr>
             <tr class="file">
                 <td class="name left"><a href="api_handlers_auth_handler_py.html">api/handlers/auth_handler.py</a></td>
-                <td>18</td>
-                <td>4</td>
+                <td>19</td>
+                <td>6</td>
                 <td>0</td>
-                <td class="right" data-ratio="14 18">78%</td>
+                <td>2</td>
+                <td>0</td>
+                <td class="right" data-ratio="13 21">61.90%</td>
             </tr>
             <tr class="file">
                 <td class="name left"><a href="api_users___init___py.html">api/users/__init__.py</a></td>
                 <td>0</td>
                 <td>0</td>
                 <td>0</td>
-                <td class="right" data-ratio="0 0">100%</td>
-            </tr>
-            <tr class="file">
-                <td class="name left"><a href="api_users_user_py.html">api/users/user.py</a></td>
-                <td>25</td>
-                <td>17</td>
                 <td>0</td>
-                <td class="right" data-ratio="8 25">32%</td>
+                <td>0</td>
+                <td class="right" data-ratio="0 0">100.00%</td>
             </tr>
             <tr class="file">
                 <td class="name left"><a href="api_users_users_repository_py.html">api/users/users_repository.py</a></td>
                 <td>8</td>
                 <td>3</td>
                 <td>0</td>
-                <td class="right" data-ratio="5 8">62%</td>
+                <td>0</td>
+                <td>0</td>
+                <td class="right" data-ratio="5 8">62.50%</td>
             </tr>
             <tr class="file">
                 <td class="name left"><a href="api_users_users_service_py.html">api/users/users_service.py</a></td>
-                <td>16</td>
-                <td>9</td>
+                <td>27</td>
+                <td>14</td>
                 <td>0</td>
-                <td class="right" data-ratio="7 16">44%</td>
+                <td>2</td>
+                <td>0</td>
+                <td class="right" data-ratio="13 29">44.83%</td>
             </tr>
             <tr class="file">
                 <td class="name left"><a href="api_utils___init___py.html">api/utils/__init__.py</a></td>
                 <td>0</td>
                 <td>0</td>
                 <td>0</td>
-                <td class="right" data-ratio="0 0">100%</td>
-            </tr>
-            <tr class="file">
-                <td class="name left"><a href="api_utils_db_utils_py.html">api/utils/db_utils.py</a></td>
-                <td>17</td>
-                <td>3</td>
                 <td>0</td>
-                <td class="right" data-ratio="14 17">82%</td>
+                <td>0</td>
+                <td class="right" data-ratio="0 0">100.00%</td>
             </tr>
             <tr class="file">
                 <td class="name left"><a href="api_utils_handler_utils_py.html">api/utils/handler_utils.py</a></td>
-                <td>53</td>
-                <td>7</td>
+                <td>58</td>
+                <td>5</td>
                 <td>0</td>
-                <td class="right" data-ratio="46 53">87%</td>
+                <td>8</td>
+                <td>1</td>
+                <td class="right" data-ratio="60 66">90.91%</td>
             </tr>
         </tbody>
     </table>
@@ -153,7 +165,7 @@
     <div class="content">
         <p>
             <a class="nav" href="https://coverage.readthedocs.io">coverage.py v5.0.4</a>,
-            created at 2020-04-11 14:45
+            created at 2020-04-11 17:02
         </p>
     </div>
 </div>

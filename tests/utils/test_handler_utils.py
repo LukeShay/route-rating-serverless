@@ -13,16 +13,18 @@ class TestHandlerUtils(TestCase):
 
         os.environ["LOG"] = "FALSE"
 
-    def test_setup_logger(self):
+    def test_setup_logger_false(self):
         setup_logger()
         root = logging.getLogger()
-        self.assertEqual(1, len(root.handlers))
+        self.assertEqual(0, len(root.handlers))
+
+    def test_setup_logger_true(self):
+        os.environ["LOG"] = "TRUE"
+
+        setup_logger()
+        root = logging.getLogger()
+        self.assertEqual(0, len(root.handlers))
 
     def test_no_setup_logger(self):
-        root = logging.getLogger()
-
-        for handler in root.handlers:
-            root.removeHandler(handler)
-
         root = logging.getLogger()
         self.assertEqual(0, len(root.handlers))
