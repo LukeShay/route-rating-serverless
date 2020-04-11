@@ -72,6 +72,9 @@ class User:
             "role": self.role,
         }
 
+    def as_dict(self):
+        return self.as_camel_dict()
+
     def as_json_response(self):
         body = self.as_camel_dict()
         body.pop("password")

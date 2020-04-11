@@ -7,5 +7,11 @@
       <jdbc-driver>org.postgresql.Driver</jdbc-driver>
       <jdbc-url>jdbc:postgresql://localhost:5432/routerating</jdbc-url>
     </data-source>
+    <data-source source="LOCAL" name="" uuid="0e771a2f-5d00-4728-a00c-e26618e91289">
+      <driver-ref>sqlite.xerial</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
+      <jdbc-url>jdbc:sqlite:$PROJECT_DIR$/.coverage</jdbc-url>
+    </data-source>
   </component>
 </project>

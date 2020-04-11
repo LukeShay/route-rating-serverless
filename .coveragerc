@@ -2,7 +2,7 @@
 branch = True
 
 [report]
-omit = api/utils/db_utils.py,api/users/user.py
+omit = api/utils/db_utils.py,api/users/user.py,*repository.py
 include = api/*.py
 precision = 2
 sort = Cover
