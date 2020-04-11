@@ -48,6 +48,9 @@ jobs:
         TEST_VALID_BASIC_JWT=${{ secrets.TEST_VALID_BASIC_JWT }} \
         TEST_VALID_ADMIN_JWT=${{ secrets.TEST_VALID_ADMIN_JWT }} \
         TEST_INVALID_JWT=${{ secrets.TEST_INVALID_JWT }} \
+        DATABASE_URL=${{ secrets.DATABASE_URL }} \
+        DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }} \
+        DATABASE_USERNAME=${{ secrets.DATABASE_USERNAME }} \
         make integration-tests
   deploy-dev:
     needs:
@@ -112,6 +115,9 @@ jobs:
         TEST_VALID_BASIC_JWT=${{ secrets.TEST_VALID_BASIC_JWT }} \
         TEST_VALID_ADMIN_JWT=${{ secrets.TEST_VALID_ADMIN_JWT }} \
         TEST_INVALID_JWT=${{ secrets.TEST_INVALID_JWT }} \
+        DATABASE_URL=${{ secrets.DATABASE_URL }} \
+        DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }} \
+        DATABASE_USERNAME=${{ secrets.DATABASE_USERNAME }} \
         make integration-tests-remote
   deploy-prod:
     needs:
@@ -173,4 +179,7 @@ jobs:
         TEST_VALID_BASIC_JWT=${{ secrets.TEST_VALID_BASIC_JWT }} \
         TEST_VALID_ADMIN_JWT=${{ secrets.TEST_VALID_ADMIN_JWT }} \
         TEST_INVALID_JWT=${{ secrets.TEST_INVALID_JWT }} \
+        DATABASE_URL=${{ secrets.DATABASE_URL }} \
+        DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }} \
+        DATABASE_USERNAME=${{ secrets.DATABASE_USERNAME }} \
         make smoke-test
