@@ -2,10 +2,6 @@ name: CI
 on:
   - push
 
-x-secret-envs: &secret-envs
-  JWT_SECRET: ${{ secrets.JWT_SECRET }}
-  REFRESH_SECRET: ${{ secrets.REFRESH_SECRET }}
-
 x-aws-creds: &aws-creds
   uses: aws-actions/configure-aws-credentials@v1
   with:
