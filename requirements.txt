@@ -1,7 +1,6 @@
+bcrypt
 black
 mock
 munch
 PyJWT
-pytest
-pytest-cov
-pytest-xdist
+queries

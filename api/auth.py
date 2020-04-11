@@ -3,7 +3,7 @@ from munch import Munch
 import jwt
 import os
 import logging
-from api.utils.response_utils import ApiGatewayResponse
+from api.api_gateway import ApiGatewayResponse
 import traceback
 
 
@@ -89,44 +89,3 @@ class Auth:
     @property
     def event(self) -> Munch:
         return Munch.fromDict(self._event)
-
-
-def basic_auth(function):
-    def wrapper(*args, **kwargs):
-        try:
-            auth = Auth(args[0])
-
-            if not auth.validate_jwt():
-                return ApiGatewayResponse.forbidden_json_response()
-        except Exception as e:
-            logging.error("Exception raised while authenticating.")
-            logging.error(traceback.format_exc())
-            logging.exception(e)
-
-            return ApiGatewayResponse.forbidden_json_response()
-
-        return function(*args)
-
-    return wrapper
-
-
-def admin_auth(function):
-    def wrapper(*args, **kwargs):
-        try:
-            auth = Auth(args[0])
-
-            if not auth.validate_jwt():
-                return ApiGatewayResponse.forbidden_json_response()
-
-            if not auth.is_admin():
-                return ApiGatewayResponse.unauthorized_json_response()
-        except Exception as e:
-            logging.error("Exception raised while authenticating.")
-            logging.error(traceback.format_exc())
-            logging.exception(e)
-
-            return ApiGatewayResponse.forbidden_json_response()
-
-        return function(*args)
-
-    return wrapper
