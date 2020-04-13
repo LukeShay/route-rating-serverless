@@ -31,6 +31,16 @@ jobs:
     - run: yarn --disable-progress
     - run: pip install -Ur requirements.txt -Ur requirements.dev.txt
     - run: JWT_SECRET=${{ secrets.JWT_SECRET }} REFRESH_SECRET=${{ secrets.REFRESH_SECRET }} make ut
+    - run: |
+        JWT_SECRET=${{ secrets.JWT_SECRET }} \
+        REFRESH_SECRET=${{ secrets.REFRESH_SECRET }} \
+        DATABASE_URL=${{ secrets.DATABASE_URL }} \
+        DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }} \
+        DATABASE_USERNAME=${{ secrets.DATABASE_USERNAME }} \
+        TEST_VALID_BASIC_JWT=${{ secrets.TEST_VALID_BASIC_JWT }} \
+        TEST_VALID_ADMIN_JWT=${{ secrets.TEST_VALID_ADMIN_JWT }} \
+        TEST_INVALID_JWT=${{ secrets.TEST_INVALID_JWT }} \
+        make it
   deploy-dev:
     needs:
     - lint
