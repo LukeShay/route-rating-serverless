@@ -22,7 +22,9 @@ class UsersService:
 
         user_result = self.get_user_by_username(user)
 
-        if not UsersService.check_passwords(user.password, user_result.password):
+        if not user_result.id or not UsersService.check_passwords(
+            user.password, user_result.password
+        ):
             return None
 
         return user_result
