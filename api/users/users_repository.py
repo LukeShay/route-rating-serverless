@@ -15,3 +15,8 @@ class UsersRepository:
 
     def get_users(self):
         return self.session.query("SELECT * FROM users")
+
+    def get_user_by_email(self, email):
+        return self.session.query(
+            "SELECT * FROM users WHERE email=%(email)s LIMIT 1", {"email": email}
+        )
