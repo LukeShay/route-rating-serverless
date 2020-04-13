@@ -55,6 +55,7 @@ jobs:
           TEST_INVALID_JWT=${{ secrets.TEST_INVALID_JWT }} \
           make it
   deploy-dev:
+    if: github.ref == 'refs/heads/master'
     needs:
       - lint
       - test
