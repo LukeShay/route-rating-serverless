@@ -68,7 +68,6 @@ jobs:
       - integration-test
     runs-on: ubuntu-latest
     name: Deploy dev
-    if: github.ref == 'refs/heads/master'
     steps:
       - <<: *checkout-code
       - <<: *setup-node
@@ -107,11 +106,11 @@ jobs:
           DATABASE_USERNAME=${{ secrets.DATABASE_USERNAME }} \
           make itr
   deploy-prod:
+    if: github.ref == 'refs/heads/master'
     needs:
       - integration-test-remote
     runs-on: ubuntu-latest
     name: Deploy prod
-    if: github.ref == 'refs/heads/master'
     steps:
       - <<: *checkout-code
       - <<: *setup-node
