@@ -11,7 +11,7 @@ jobs:
     - name: Setup python
       uses: actions/setup-python@v1
       with:
-        python-version: '3.8'
+        python-version: '3.7'
     - run: pip install -Ur requirements.txt -Ur requirements.dev.txt
     - run: make lint
   test:
@@ -27,7 +27,7 @@ jobs:
     - name: Setup python
       uses: actions/setup-python@v1
       with:
-        python-version: '3.8'
+        python-version: '3.7'
     - run: yarn --disable-progress
     - run: pip install -Ur requirements.txt -Ur requirements.dev.txt
     - run: JWT_SECRET=${{ secrets.JWT_SECRET }} REFRESH_SECRET=${{ secrets.REFRESH_SECRET }} make ut
@@ -47,7 +47,7 @@ jobs:
     - name: Setup python
       uses: actions/setup-python@v1
       with:
-        python-version: '3.8'
+        python-version: '3.7'
     - uses: aws-actions/configure-aws-credentials@v1
       with:
         aws-access-key-id: "${{ secrets.AWS_ACCESS_KEY_ID }}"
@@ -78,7 +78,7 @@ jobs:
     - name: Setup python
       uses: actions/setup-python@v1
       with:
-        python-version: '3.8'
+        python-version: '3.7'
     - uses: aws-actions/configure-aws-credentials@v1
       with:
         aws-access-key-id: "${{ secrets.AWS_ACCESS_KEY_ID }}"
@@ -112,7 +112,7 @@ jobs:
     - name: Setup python
       uses: actions/setup-python@v1
       with:
-        python-version: '3.8'
+        python-version: '3.7'
     - uses: aws-actions/configure-aws-credentials@v1
       with:
         aws-access-key-id: "${{ secrets.AWS_ACCESS_KEY_ID }}"
@@ -142,7 +142,7 @@ jobs:
     - name: Setup python
       uses: actions/setup-python@v1
       with:
-        python-version: '3.8'
+        python-version: '3.7'
     - uses: aws-actions/configure-aws-credentials@v1
       with:
         aws-access-key-id: "${{ secrets.AWS_ACCESS_KEY_ID }}"
