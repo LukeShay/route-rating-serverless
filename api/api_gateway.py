@@ -3,13 +3,20 @@ from queries import Session
 
 class ApiGatewayEvent:
     def __init__(
-        self, event, context, database_session=None, user_id=None, user_authority=None
+        self,
+        event,
+        context,
+        database_session=None,
+        user_id=None,
+        user_authority=None,
+        headers=None,
     ):
         self._event = event
         self._context = context
         self._database_session = database_session
         self._user_id = user_id
         self._user_authority = user_authority
+        self._headers = headers if headers else {}
 
     @property
     def body(self) -> dict:
@@ -38,6 +45,25 @@ class ApiGatewayEvent:
         :return: The currently signed in user authority or none
         """
         return self._user_authority
+
+    def ok_json_response(self, body=None, headers=None):
+        if not headers:
+            headers = {}
+        return ApiGatewayResponse.ok_json_response(body, {**self._headers, **headers})
+
+    def unauthorized_json_response(self, body=None, headers=None):
+        if not headers:
+            headers = {}
+        return ApiGatewayResponse.unauthorized_json_response(
+            body, {**self._headers, **headers}
+        )
+
+    def forbidden_json_response(self, body=None, headers=None):
+        if not headers:
+            headers = {}
+        return ApiGatewayResponse.forbidden_json_response(
+            body, {**self._headers, **headers}
+        )
 
 
 class ApiGatewayResponse:

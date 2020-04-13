@@ -29,7 +29,9 @@ def validate_jwt(
     try:
         auth = Auth(args[0][0])
 
-        if not auth.validate_jwt():
+        valid, jwt_token, refresh_token = auth.validate_jwt()
+
+        if not valid:
             return ApiGatewayResponse.forbidden_json_response()
 
         if admin_auth and not auth.is_admin():
@@ -42,6 +44,7 @@ def validate_jwt(
                 database_session,
                 auth.get_jwt_payload().id,
                 auth.get_jwt_payload().authorities,
+                headers={"Authorization": jwt_token, "Refresh": refresh_token},
             )
         )
     except Exception as e:

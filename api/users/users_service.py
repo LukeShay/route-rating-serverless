@@ -2,21 +2,17 @@ from api.users.users_repository import UsersRepository
 from api.users.user import User
 import logging
 import bcrypt
-import os
-import jwt
-from api.auth import JwtPayload
+from api.auth import Jwt
 
 
 SALT = bcrypt.gensalt(rounds=10, prefix=b"2a")
-
-ONE_DAY = 86_400_000
-ONE_WEEK = ONE_DAY * 7
 
 
 class UsersService:
     def __init__(self, database_session):
         logging.debug("Initializing UsersService")
         self.users_repository = UsersRepository(database_session)
+        self.jwt = Jwt()
 
     def login(self, user) -> User or None:
         """
@@ -33,8 +29,8 @@ class UsersService:
         ):
             return None, None
 
-        jwt_token = self.generate_jwt_token(user_result)
-        refresh_token = self.generate_refresh_token(user_result)
+        jwt_token = self.jwt.generate_jwt_token(user_result)
+        refresh_token = self.jwt.generate_refresh_token(user_result)
 
         return (
             user_result,
@@ -65,35 +61,6 @@ class UsersService:
 
         result.free()
         return user
-
-    def generate_jwt_token(self, user):
-        return self._generate_jwt(
-            JwtPayload.generate_as_dict(user.id, user.email, [user.authority], ONE_DAY),
-            self._jwt_secret,
-        )
-
-    def generate_refresh_token(self, user):
-        return self._generate_jwt(
-            JwtPayload.generate_as_dict(
-                user.id, user.email, [user.authority], ONE_WEEK
-            ),
-            self._refresh_secret,
-        )
-
-    def _generate_jwt(self, payload, secret):
-        return jwt.encode(payload, secret, self._algorithm)
-
-    @property
-    def _jwt_secret(self) -> str:
-        return os.getenv("JWT_SECRET")
-
-    @property
-    def _refresh_secret(self) -> str:
-        return os.getenv("REFRESH_SECRET")
-
-    @property
-    def _algorithm(self):
-        return "HS256"
 
     @staticmethod
     def check_passwords(password: str, hashed_password: str) -> bool:

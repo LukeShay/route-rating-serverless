@@ -7,14 +7,14 @@ import logging
 
 @basic_handler(database=False)
 def basic_auth_handler(event: ApiGatewayEvent):
-    return ApiGatewayResponse.ok_json_response(
+    return event.ok_json_response(
         {"id": event.user_id, "authority": event.user_authority}
     )
 
 
 @admin_handler(database=False)
 def admin_auth_handler(event: ApiGatewayEvent):
-    return ApiGatewayResponse.ok_json_response(
+    return event.ok_json_response(
         {"id": event.user_id, "authority": event.user_authority}
     )
 
@@ -27,6 +27,6 @@ def login_handler(event: ApiGatewayEvent):
     user, headers = users_service.login(User.from_camel_dict(event.body))
 
     if not user:
-        return ApiGatewayResponse.forbidden_json_response()
+        return event.forbidden_json_response()
 
-    return ApiGatewayResponse.ok_json_response(user.as_json_response(), headers)
+    return event.ok_json_response(user.as_json_response(), headers)
