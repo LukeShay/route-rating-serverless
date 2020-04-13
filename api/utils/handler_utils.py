@@ -40,8 +40,8 @@ def validate_jwt(
                 event,
                 context,
                 database_session,
-                auth.get_jwt_payload().get("id", None),
-                auth.get_jwt_payload().get("authorities", None),
+                auth.get_jwt_payload().id,
+                auth.get_jwt_payload().authorities,
             )
         )
     except Exception as e:

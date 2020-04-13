@@ -11,24 +11,12 @@ jobs:
     - name: Setup python
       uses: actions/setup-python@v1
       with:
-        python-version: '3.8'
+        python-version: '3.7'
     - run: pip install -Ur requirements.txt -Ur requirements.dev.txt
     - run: make lint
-  unit-test:
+  test:
     runs-on: ubuntu-latest
-    name: Unit test
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
-    - name: Setup python
-      uses: actions/setup-python@v1
-      with:
-        python-version: '3.8'
-    - run: pip install -Ur requirements.txt -Ur requirements.dev.txt
-    - run: JWT_SECRET=${{ secrets.JWT_SECRET }} REFRESH_SECRET=${{ secrets.REFRESH_SECRET }} make ut
-  integration-test:
-    runs-on: ubuntu-latest
-    name: Integration test
+    name: Test
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
@@ -39,27 +27,27 @@ jobs:
     - name: Setup python
       uses: actions/setup-python@v1
       with:
-        python-version: '3.8'
-    - run: yarn
+        python-version: '3.7'
+    - run: yarn --disable-progress
     - run: pip install -Ur requirements.txt -Ur requirements.dev.txt
+    - run: JWT_SECRET=${{ secrets.JWT_SECRET }} REFRESH_SECRET=${{ secrets.REFRESH_SECRET }} make ut
     - run: |
         JWT_SECRET=${{ secrets.JWT_SECRET }} \
         REFRESH_SECRET=${{ secrets.REFRESH_SECRET }} \
-        TEST_VALID_BASIC_JWT=${{ secrets.TEST_VALID_BASIC_JWT }} \
-        TEST_VALID_ADMIN_JWT=${{ secrets.TEST_VALID_ADMIN_JWT }} \
-        TEST_INVALID_JWT=${{ secrets.TEST_INVALID_JWT }} \
         DATABASE_URL=${{ secrets.DATABASE_URL }} \
         DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }} \
         DATABASE_USERNAME=${{ secrets.DATABASE_USERNAME }} \
+        TEST_VALID_BASIC_JWT=${{ secrets.TEST_VALID_BASIC_JWT }} \
+        TEST_VALID_ADMIN_JWT=${{ secrets.TEST_VALID_ADMIN_JWT }} \
+        TEST_INVALID_JWT=${{ secrets.TEST_INVALID_JWT }} \
         make it
   deploy-dev:
+    if: github.ref == 'refs/heads/master'
     needs:
     - lint
-    - unit-test
-    - integration-test
+    - test
     runs-on: ubuntu-latest
     name: Deploy dev
-    if: github.ref == 'refs/heads/master'
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
@@ -70,13 +58,13 @@ jobs:
     - name: Setup python
       uses: actions/setup-python@v1
       with:
-        python-version: '3.8'
+        python-version: '3.7'
     - uses: aws-actions/configure-aws-credentials@v1
       with:
         aws-access-key-id: "${{ secrets.AWS_ACCESS_KEY_ID }}"
         aws-secret-access-key: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
         aws-region: us-east-2
-    - run: yarn
+    - run: yarn --disable-progress
     - run: pip install -Ur requirements.txt -Ur requirements.dev.txt
     - run: JWT_SECRET=${{ secrets.JWT_SECRET }} REFRESH_SECRET=${{ secrets.REFRESH_SECRET }} make generate-secrets
     - run: |
@@ -101,13 +89,13 @@ jobs:
     - name: Setup python
       uses: actions/setup-python@v1
       with:
-        python-version: '3.8'
+        python-version: '3.7'
     - uses: aws-actions/configure-aws-credentials@v1
       with:
         aws-access-key-id: "${{ secrets.AWS_ACCESS_KEY_ID }}"
         aws-secret-access-key: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
         aws-region: us-east-2
-    - run: yarn
+    - run: yarn --disable-progress
     - run: pip install -Ur requirements.txt -Ur requirements.dev.txt
     - run: |
         JWT_SECRET=${{ secrets.JWT_SECRET }} \
@@ -120,11 +108,11 @@ jobs:
         DATABASE_USERNAME=${{ secrets.DATABASE_USERNAME }} \
         make itr
   deploy-prod:
+    if: github.ref == 'refs/heads/master'
     needs:
     - integration-test-remote
     runs-on: ubuntu-latest
     name: Deploy prod
-    if: github.ref == 'refs/heads/master'
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
@@ -135,13 +123,13 @@ jobs:
     - name: Setup python
       uses: actions/setup-python@v1
       with:
-        python-version: '3.8'
+        python-version: '3.7'
     - uses: aws-actions/configure-aws-credentials@v1
       with:
         aws-access-key-id: "${{ secrets.AWS_ACCESS_KEY_ID }}"
         aws-secret-access-key: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
         aws-region: us-east-2
-    - run: yarn
+    - run: yarn --disable-progress
     - run: pip install -Ur requirements.txt -Ur requirements.dev.txt
     - run: |
         JWT_SECRET=${{ secrets.JWT_SECRET }} \
@@ -165,13 +153,13 @@ jobs:
     - name: Setup python
       uses: actions/setup-python@v1
       with:
-        python-version: '3.8'
+        python-version: '3.7'
     - uses: aws-actions/configure-aws-credentials@v1
       with:
         aws-access-key-id: "${{ secrets.AWS_ACCESS_KEY_ID }}"
         aws-secret-access-key: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
         aws-region: us-east-2
-    - run: yarn
+    - run: yarn --disable-progress
     - run: pip install -Ur requirements.txt -Ur requirements.dev.txt
     - run: |
         JWT_SECRET=${{ secrets.JWT_SECRET }} \

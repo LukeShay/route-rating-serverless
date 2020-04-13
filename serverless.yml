@@ -29,7 +29,7 @@ x-common-lambda-properties: &common-lambda-properties
 
 provider:
   name: aws
-  runtime: python3.8
+  runtime: python3.7
   region: ${opt:region, 'us-east-2'}
   versionFunctions: true
   role: arn:aws:iam::816188110262:role/LambdaRole
@@ -38,7 +38,8 @@ provider:
     service: route-rating-serverless
 
 functions:
-  basic-auth:
+  BasicAuth:
+    name: ${self:provider.stage}-${self:service}-basic-auth
     <<: *common-lambda-properties
     environment:
       <<: *common-lambda-env
@@ -49,7 +50,8 @@ functions:
       - http:
           path: auth/basic
           method: post
-  admin-auth:
+  AdminAuth:
+    name: ${self:provider.stage}-${self:service}-admin-auth
     <<: *common-lambda-properties
     environment:
       <<: *common-lambda-env
@@ -60,7 +62,8 @@ functions:
       - http:
           path: auth/admin
           method: post
-  login:
+  Login:
+    name: ${self:provider.stage}-${self:service}-login
     <<: *common-lambda-properties
     environment:
       <<: *common-lambda-env

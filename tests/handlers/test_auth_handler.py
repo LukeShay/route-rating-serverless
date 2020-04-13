@@ -22,41 +22,45 @@ class TestAuthHandler(TestCase):
         os.environ["TEST_RUN"] = "TRUE"
 
         self.valid_jwt_payload = {
-            "username": "lukeshay",
+            "email": "lukeshay",
             "id": "some_id",
             "authorities": "ADMIN",
             "expires": "never",
-            "issuedAt": "10000",
+            "issued_at": "10000",
         }
         self.valid_basic_jwt_payload = {
-            "username": "lukeshay",
+            "email": "lukeshay",
             "id": "some_id",
             "authorities": "BASIC",
             "expires": "never",
-            "issuedAt": "10000",
+            "issued_at": "10000",
         }
         self.invalid_jwt_payload_no_expires = {
-            "username": "lukeshay",
+            "email": "lukeshay",
             "id": "some_id",
             "authorities": "ADMIN",
+            "issued_at": "10000",
         }
-        self.invalid_jwt_payload_no_username = {
+        self.invalid_jwt_payload_no_email = {
             "id": "some_id",
             "authorities": "ADMIN",
             "expires": "never",
+            "issued_at": "10000",
         }
         self.invalid_jwt_payload_no_authorities = {
-            "username": "lukeshay",
+            "email": "lukeshay",
             "id": "some_id",
             "expires": "never",
+            "issued_at": "10000",
         }
         self.invalid_jwt_payload_no_id = {
-            "username": "lukeshay",
+            "email": "lukeshay",
             "authorities": "ADMIN",
             "expires": "never",
+            "issued_at": "10000",
         }
-        self.invalid_jwt_payload_no_issuedAt = {
-            "username": "lukeshay",
+        self.invalid_jwt_payload_no_issued_at = {
+            "email": "lukeshay",
             "id": "some_id",
             "authorities": "ADMIN",
             "expires": "never",
@@ -65,15 +69,21 @@ class TestAuthHandler(TestCase):
         self.test_password = "some_password"
         self.test_id = "THIS IS AN ID"
 
-        self.test_user = User.from_snake_dict(
-            {
-                "username": "some_username",
-                "password": bcrypt.hashpw(
-                    self.test_password.encode("utf8"),
-                    bcrypt.gensalt(rounds=10, prefix=b"2a"),
-                ).decode("utf8"),
-                "id": self.test_id,
-            }
+        self.test_user = User(
+            email="some_email",
+            password=bcrypt.hashpw(
+                self.test_password.encode("utf8"),
+                bcrypt.gensalt(rounds=10, prefix=b"2a"),
+            ).decode("utf8"),
+            user_id=self.test_id,
+            authority="ADMIN",
+            role="ADMIN_ROLE",
+            state="Iowa",
+            city="Ames",
+            username="some_username",
+            first_name="some_first_name",
+            last_name="some_last_name",
+            phone_number="8765309",
         )
 
     def test_basic_admin_valid_jwt(self):
@@ -108,11 +118,11 @@ class TestAuthHandler(TestCase):
 
         self.assertEqual(403, response.get("statusCode", None))
 
-    def test_basic_invalid_jwt_no_username(self):
+    def test_basic_invalid_jwt_no_email(self):
         response = basic_auth_handler(
             ApiGatewayEvent(
                 headers={
-                    "Authorization": generate_jwt(self.invalid_jwt_payload_no_username)
+                    "Authorization": generate_jwt(self.invalid_jwt_payload_no_email)
                 }
             ).as_dict(),
             None,
@@ -144,11 +154,11 @@ class TestAuthHandler(TestCase):
 
         self.assertEqual(403, response.get("statusCode", None))
 
-    def test_basic_invalid_jwt_no_issuedAt(self):
+    def test_basic_invalid_jwt_no_issued_at(self):
         response = basic_auth_handler(
             ApiGatewayEvent(
                 headers={
-                    "Authorization": generate_jwt(self.invalid_jwt_payload_no_issuedAt)
+                    "Authorization": generate_jwt(self.invalid_jwt_payload_no_issued_at)
                 }
             ).as_dict(),
             None,
@@ -208,11 +218,11 @@ class TestAuthHandler(TestCase):
 
         self.assertEqual(403, response.get("statusCode", None))
 
-    def test_admin_invalid_jwt_no_username(self):
+    def test_admin_invalid_jwt_no_email(self):
         response = admin_auth_handler(
             ApiGatewayEvent(
                 headers={
-                    "Authorization": generate_jwt(self.invalid_jwt_payload_no_username)
+                    "Authorization": generate_jwt(self.invalid_jwt_payload_no_email)
                 }
             ).as_dict(),
             None,
@@ -244,11 +254,11 @@ class TestAuthHandler(TestCase):
 
         self.assertEqual(403, response.get("statusCode", None))
 
-    def test_admin_invalid_jwt_no_issuedAt(self):
+    def test_admin_invalid_jwt_no_issued_at(self):
         response = admin_auth_handler(
             ApiGatewayEvent(
                 headers={
-                    "Authorization": generate_jwt(self.invalid_jwt_payload_no_issuedAt)
+                    "Authorization": generate_jwt(self.invalid_jwt_payload_no_issued_at)
                 }
             ).as_dict(),
             None,
@@ -288,31 +298,28 @@ class TestAuthHandler(TestCase):
         self.assertEqual(generate_refresh(self.valid_jwt_payload), auth.refresh_header)
         self.assertEqual(os.getenv("REFRESH_SECRET"), auth._refresh_secret)
 
-    @patch("api.users.users_repository.UsersRepository.get_user_by_username")
-    def test_login_valid_credentials(self, mock_get_user_by_username):
-        mock_get_user_by_username.return_value = DatabaseResult(self.test_user)
+    @patch("api.users.users_repository.UsersRepository.get_user_by_email")
+    def test_login_valid_credentials(self, mock_get_user_by_email):
+        mock_get_user_by_email.return_value = DatabaseResult(self.test_user)
 
         response = login_handler(
             ApiGatewayEvent(
-                body={
-                    "username": self.test_user.username,
-                    "password": self.test_password,
-                }
+                body={"email": self.test_user.email, "password": self.test_password,}
             ).as_dict(),
             None,
         )
 
         self.assertEqual(200, response.get("statusCode", None))
-        self.assertEqual(self.test_user.username, response.get("body")["username"])
+        self.assertEqual(self.test_user.email, response.get("body")["email"])
         self.assertEqual(self.test_user.id, response.get("body")["id"])
 
-    @patch("api.users.users_repository.UsersRepository.get_user_by_username")
-    def test_login_invalid_credentials(self, mock_get_user_by_username):
-        mock_get_user_by_username.return_value = DatabaseResult(self.test_user)
+    @patch("api.users.users_repository.UsersRepository.get_user_by_email")
+    def test_login_invalid_credentials(self, mock_get_user_by_email):
+        mock_get_user_by_email.return_value = DatabaseResult(self.test_user)
 
         response = login_handler(
             ApiGatewayEvent(
-                body={"username": self.test_user.username, "password": "EYYYEYE",}
+                body={"email": self.test_user.email, "password": "EYYYEYE",}
             ).as_dict(),
             None,
         )

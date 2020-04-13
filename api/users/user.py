@@ -25,6 +25,21 @@ class User:
         self.authority = authority
         self.role = role
 
+    def all_fields_present(self):
+        return (
+            self.id
+            and self.username
+            and self.password
+            and self.city
+            and self.state
+            and self.first_name
+            and self.last_name
+            and self.email
+            and self.phone_number
+            and self.authority
+            and self.role
+        )
+
     @classmethod
     def from_camel_dict(cls, json):
         return cls(

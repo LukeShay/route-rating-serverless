@@ -3,12 +3,38 @@ from munch import Munch
 import jwt
 import os
 import logging
-from api.api_gateway import ApiGatewayResponse
-import traceback
 
 
 ADMIN_AUTHORITY = "ADMIN"
 BASIC_AUTHORITY = "BASIC"
+
+
+class JwtPayload:
+    def __init__(self, user_id, email, authorities, issued_at, expires):
+        self.id = user_id
+        self.email = email
+        self.authorities = authorities
+        self.issued_at = issued_at
+        self.expires = expires
+
+    @classmethod
+    def from_jwt_payload(cls, jwt_payload):
+        return cls(
+            jwt_payload.get("id", None),
+            jwt_payload.get("email", None),
+            jwt_payload.get("authorities", None),
+            jwt_payload.get("issued_at", None),
+            jwt_payload.get("expires", None),
+        )
+
+    def as_dict(self):
+        return {
+            "id": self.id,
+            "email": self.email,
+            "authorities": self.authorities,
+            "issued_at": self.issued_at,
+            "expires": self.expires,
+        }
 
 
 class Auth:
@@ -38,34 +64,34 @@ class Auth:
             logging.info("JWT payload is missing.")
             return False
 
-        if not payload.get("username"):
+        if not payload.email:
             logging.info("username is missing from jwt payload.")
             return False
 
-        if not payload.get("id"):
+        if not payload.id:
             logging.info("id is missing from jwt payload.")
             return False
 
-        if not payload.get("authorities"):
+        if not payload.authorities:
             logging.info("authorities is missing from jwt payload.")
             return False
 
-        if not payload.get("expires"):
+        if not payload.expires:
             logging.info("expires is missing from jwt payload.")
             return False
 
-        if not payload.get("issuedAt"):
+        if not payload.issued_at:
             logging.info("expires is missing from jwt payload.")
             return False
 
         return True
 
     def is_admin(self):
-        return ADMIN_AUTHORITY in self.get_jwt_payload().get("authorities")
+        return ADMIN_AUTHORITY in self.get_jwt_payload().authorities
 
-    def get_jwt_payload(self) -> Munch or None:
+    def get_jwt_payload(self) -> JwtPayload or None:
         try:
-            return Munch.fromDict(
+            return JwtPayload.from_jwt_payload(
                 jwt.decode(
                     self.auth_header, self._jwt_secret, algorithms=[self.algorithm]
                 )

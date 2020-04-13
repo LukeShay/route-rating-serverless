@@ -20,7 +20,7 @@ class UsersService:
         """
         logging.debug(f"Attempting login:\n{user.as_camel_dict()}")
 
-        user_result = self.get_user_by_username(user)
+        user_result = self.get_user_by_email(user)
 
         if not UsersService.check_passwords(user.password, user_result.password):
             return None
@@ -37,10 +37,24 @@ class UsersService:
         result.free()
         return user
 
+    def get_user_by_email(self, request_user: User) -> User or None:
+        logging.debug(f"Getting user by email:\n{request_user.as_camel_dict()}")
+
+        result = self.users_repository.get_user_by_email(request_user.email)
+
+        user = User.from_snake_dict(result.as_dict())
+
+        logging.debug(f"User from database:\n{user.as_camel_dict()}")
+
+        result.free()
+        return user
+
     @staticmethod
     def check_passwords(password: str, hashed_password: str) -> bool:
+        logging.debug("Comparing passwords")
         return bcrypt.checkpw(password.encode("utf8"), hashed_password.encode("utf8"))
 
     @staticmethod
     def encrypt_password(password: str) -> str:
+        logging.debug("Encrypting password")
         return bcrypt.hashpw(password.encode("utf8"), SALT)
