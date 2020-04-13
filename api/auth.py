@@ -1,116 +1,74 @@
-from jwt import DecodeError
-from munch import Munch
-import jwt
-import os
-import logging
+from typing import Optional
 
+from munch import Munch
+import logging
+from api.jwt import Jwt, JwtPayload
 
 ADMIN_AUTHORITY = "ADMIN"
 BASIC_AUTHORITY = "BASIC"
 
 
-class JwtPayload:
-    def __init__(self, user_id, email, authorities, issued_at, expires):
-        self.id = user_id
-        self.email = email
-        self.authorities = authorities
-        self.issued_at = issued_at
-        self.expires = expires
-
-    @classmethod
-    def from_jwt_payload(cls, jwt_payload):
-        return cls(
-            jwt_payload.get("id", None),
-            jwt_payload.get("email", None),
-            jwt_payload.get("authorities", None),
-            jwt_payload.get("issued_at", None),
-            jwt_payload.get("expires", None),
-        )
-
-    def as_dict(self):
-        return {
-            "id": self.id,
-            "email": self.email,
-            "authorities": self.authorities,
-            "issued_at": self.issued_at,
-            "expires": self.expires,
-        }
-
-
 class Auth:
     def __init__(self, event):
         self._event = Munch.fromDict(event)
+        self.jwt = Jwt()
 
     @property
-    def auth_header(self) -> str:
-        return (
-            self.event.headers.Authorization[7:]
-            if "Bearer " in self.event.headers.Authorization
-            else self.event.headers.Authorization
-        )
+    def auth_header(self) -> Optional[str]:
+        if self.event.headers.get("Authorization"):
+            return (
+                self.event.headers.Authorization[7:]
+                if "Bearer " in self.event.headers.Authorization
+                else self.event.headers.Authorization
+            )
 
     @property
-    def refresh_header(self) -> str:
-        return (
-            self.event.headers.Refresh[7:]
-            if "Bearer " in self.event.headers.Refresh
-            else self.event.headers.Refresh
-        )
+    def refresh_header(self) -> Optional[str]:
+        if self.event.headers.get("Refresh"):
+            return (
+                self.event.headers.Refresh[7:]
+                if "Bearer " in self.event.headers.Refresh
+                else self.event.headers.Refresh
+            )
 
-    def validate_jwt(self) -> bool:
-        payload = self.get_jwt_payload()
+    def validate_jwt(self) -> (bool, Optional[str], Optional[str]):
+        jwt_payload = self.get_jwt_payload()
 
-        if not payload:
+        if not jwt_payload:
             logging.info("JWT payload is missing.")
-            return False
+            return False, None, None
 
-        if not payload.email:
-            logging.info("username is missing from jwt payload.")
-            return False
+        if not jwt_payload.all_fields_present():
+            logging.info("JWT payload is missing a field.")
+            return False, None, None
 
-        if not payload.id:
-            logging.info("id is missing from jwt payload.")
-            return False
+        if jwt_payload.is_expired():
+            refresh_payload = self.get_refresh_payload()
 
-        if not payload.authorities:
-            logging.info("authorities is missing from jwt payload.")
-            return False
+            if (
+                refresh_payload
+                and refresh_payload.all_fields_present()
+                and not refresh_payload.is_expired()
+            ):
+                new_jwt = self.jwt.extend_jwt_token(jwt_payload)
+                return (
+                    True,
+                    new_jwt,
+                    self.refresh_header,
+                )
 
-        if not payload.expires:
-            logging.info("expires is missing from jwt payload.")
-            return False
+            return False, None, None
 
-        if not payload.issued_at:
-            logging.info("expires is missing from jwt payload.")
-            return False
+        return True, self.auth_header, self.refresh_header
 
-        return True
-
-    def is_admin(self):
+    def is_admin(self) -> bool:
         return ADMIN_AUTHORITY in self.get_jwt_payload().authorities
 
-    def get_jwt_payload(self) -> JwtPayload or None:
-        try:
-            return JwtPayload.from_jwt_payload(
-                jwt.decode(
-                    self.auth_header, self._jwt_secret, algorithms=[self.algorithm]
-                )
-            )
-        except DecodeError as e:
-            print(e)
-            return None
+    def get_jwt_payload(self) -> Optional[JwtPayload]:
+        return self.jwt.decode_jwt_token(self.auth_header)
 
-    @property
-    def _jwt_secret(self) -> str:
-        return os.getenv("JWT_SECRET")
-
-    @property
-    def _refresh_secret(self) -> str:
-        return os.getenv("REFRESH_SECRET")
-
-    @property
-    def algorithm(self):
-        return "HS256"
+    def get_refresh_payload(self) -> Optional[JwtPayload]:
+        return self.jwt.decode_refresh_token(self.refresh_header)
 
     @property
     def event(self) -> Munch:

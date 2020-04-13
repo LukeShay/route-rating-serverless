@@ -1,7 +1,5 @@
 #!/bin/bash -e
 
-. ./integration/utils.sh
-
 data() {
     printf "{\"headers\": {\"Authorization\": \"%s\"}}" "${1}"
 }
@@ -13,7 +11,6 @@ check_status() {
 
 basic-local() {
     echo "Invoking local basic-auth with expected status ${2}..."
-    echo "JWT: ${1}"
     RESPONSE=$(yarn -s serverless invoke local -f BasicAuth -d "$(data "${1}")" -s "${3}")
     echo "Lambda response:"
     echo "${RESPONSE}"

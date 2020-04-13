@@ -2,6 +2,7 @@ from api.users.users_repository import UsersRepository
 from api.users.user import User
 import logging
 import bcrypt
+from api.auth import Jwt
 
 
 SALT = bcrypt.gensalt(rounds=10, prefix=b"2a")
@@ -11,6 +12,7 @@ class UsersService:
     def __init__(self, database_session):
         logging.debug("Initializing UsersService")
         self.users_repository = UsersRepository(database_session)
+        self.jwt = Jwt()
 
     def login(self, user) -> User or None:
         """
@@ -22,20 +24,31 @@ class UsersService:
 
         user_result = self.get_user_by_email(user)
 
-        if not UsersService.check_passwords(user.password, user_result.password):
-            return None
+        if not user_result.all_fields_present() or not UsersService.check_passwords(
+            user.password, user_result.password
+        ):
+            return None, None
 
-        return user_result
+        jwt_token = self.jwt.generate_jwt_token(user_result)
+        refresh_token = self.jwt.generate_refresh_token(user_result)
 
-    def get_user_by_username(self, request_user: User) -> User or None:
-        logging.debug(f"Getting user by username:\n{request_user.as_camel_dict()}")
+        return (
+            user_result,
+            {
+                "Authorization": f"Bearer {jwt_token}",
+                "Refresh": f"Bearer {refresh_token}",
+            },
+        )
 
-        result = self.users_repository.get_user_by_username(request_user.username)
-
-        user = User.from_snake_dict(result.as_dict())
-
-        result.free()
-        return user
+    # def get_user_by_username(self, request_user: User) -> User or None:
+    #     logging.debug(f"Getting user by username:\n{request_user.as_camel_dict()}")
+    #
+    #     result = self.users_repository.get_user_by_username(request_user.username)
+    #
+    #     user = User.from_snake_dict(result.as_dict())
+    #
+    #     result.free()
+    #     return user
 
     def get_user_by_email(self, request_user: User) -> User or None:
         logging.debug(f"Getting user by email:\n{request_user.as_camel_dict()}")

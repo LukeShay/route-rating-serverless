@@ -23,18 +23,18 @@ ut:
 
 ## runs the integration tests using yarn serverless local
 it:
-	@./integration/test.sh test-local dev
+	@./tests/integration/test.sh test-local dev
 
 ## runs unit and integration tests
 test: ut it
 
 ## runs the integration tests using yarn serverless on dev
 itr:
-	@./integration/test.sh test-remote dev
+	@./tests/integration/test.sh test-remote dev
 
 ## runs the integration tests using yarn serverless on prod
 smoke-test:
-	@./integration/test.sh test-remote prod
+	@./tests/integration/test.sh test-remote prod
 
 ## cleans all temp files
 clean:

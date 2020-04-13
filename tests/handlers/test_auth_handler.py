@@ -25,14 +25,21 @@ class TestAuthHandler(TestCase):
             "email": "lukeshay",
             "id": "some_id",
             "authorities": "ADMIN",
-            "expires": "never",
+            "expires_in": "never",
             "issued_at": "10000",
+        }
+        self.expired_jwt_payload = {
+            "email": "lukeshay",
+            "id": "some_id",
+            "authorities": "ADMIN",
+            "expires_in": "0",
+            "issued_at": "0",
         }
         self.valid_basic_jwt_payload = {
             "email": "lukeshay",
             "id": "some_id",
             "authorities": "BASIC",
-            "expires": "never",
+            "expires_in": "never",
             "issued_at": "10000",
         }
         self.invalid_jwt_payload_no_expires = {
@@ -44,26 +51,26 @@ class TestAuthHandler(TestCase):
         self.invalid_jwt_payload_no_email = {
             "id": "some_id",
             "authorities": "ADMIN",
-            "expires": "never",
+            "expires_in": "never",
             "issued_at": "10000",
         }
         self.invalid_jwt_payload_no_authorities = {
             "email": "lukeshay",
             "id": "some_id",
-            "expires": "never",
+            "expires_in": "never",
             "issued_at": "10000",
         }
         self.invalid_jwt_payload_no_id = {
             "email": "lukeshay",
             "authorities": "ADMIN",
-            "expires": "never",
+            "expires_in": "never",
             "issued_at": "10000",
         }
         self.invalid_jwt_payload_no_issued_at = {
             "email": "lukeshay",
             "id": "some_id",
             "authorities": "ADMIN",
-            "expires": "never",
+            "expires_in": "never",
         }
 
         self.test_password = "some_password"
@@ -181,9 +188,39 @@ class TestAuthHandler(TestCase):
 
         self.assertEqual(403, response.get("statusCode", None))
 
+    def test_basic_no_jwt(self):
+        response = basic_auth_handler(ApiGatewayEvent(headers={}).as_dict(), None,)
+        self.assertEqual(403, response.get("statusCode", None))
+
+    def test_basic_expired_jwt(self):
+        response = basic_auth_handler(
+            ApiGatewayEvent(
+                headers={"Authorization": generate_jwt(self.expired_jwt_payload,)}
+            ).as_dict(),
+            None,
+        )
+        self.assertEqual(403, response.get("statusCode", None))
+
+    def test_basic_expired_jwt_with_refresh(self):
+        response = basic_auth_handler(
+            ApiGatewayEvent(
+                headers={
+                    "Authorization": generate_jwt(self.expired_jwt_payload),
+                    "Refresh": generate_jwt(
+                        self.valid_jwt_payload, secret=os.getenv("REFRESH_SECRET")
+                    ),
+                }
+            ).as_dict(),
+            None,
+        )
+        self.assertEqual(200, response.get("statusCode", None))
+        self.assertNotEqual(
+            generate_jwt(self.expired_jwt_payload),
+            response.get("headers").get("Authorization"),
+        )
+
     def test_basic_unexpected_exception(self):
         response = basic_auth_handler(ApiGatewayEvent().as_dict(), None)
-
         self.assertEqual(403, response.get("statusCode", None))
 
     def test_admin_admin_valid_jwt(self):
@@ -281,6 +318,19 @@ class TestAuthHandler(TestCase):
 
         self.assertEqual(403, response.get("statusCode", None))
 
+    def test_admin_no_jwt(self):
+        response = admin_auth_handler(ApiGatewayEvent(headers={}).as_dict(), None,)
+        self.assertEqual(403, response.get("statusCode", None))
+
+    def test_admin_expired_jwt(self):
+        response = admin_auth_handler(
+            ApiGatewayEvent(
+                headers={"Authorization": generate_jwt(self.expired_jwt_payload)}
+            ).as_dict(),
+            None,
+        )
+        self.assertEqual(403, response.get("statusCode", None))
+
     def test_admin_unexpected_exception(self):
         response = admin_auth_handler(ApiGatewayEvent().as_dict(), None)
 
@@ -296,7 +346,6 @@ class TestAuthHandler(TestCase):
         )
 
         self.assertEqual(generate_refresh(self.valid_jwt_payload), auth.refresh_header)
-        self.assertEqual(os.getenv("REFRESH_SECRET"), auth._refresh_secret)
 
     @patch("api.users.users_repository.UsersRepository.get_user_by_email")
     def test_login_valid_credentials(self, mock_get_user_by_email):
@@ -312,6 +361,10 @@ class TestAuthHandler(TestCase):
         self.assertEqual(200, response.get("statusCode", None))
         self.assertEqual(self.test_user.email, response.get("body")["email"])
         self.assertEqual(self.test_user.id, response.get("body")["id"])
+        self.assertIsNotNone(response.get("headers").get("Authorization"))
+        self.assertIsNotNone(response.get("headers").get("Refresh"))
+        self.assertTrue("Bearer " in response.get("headers").get("Authorization"))
+        self.assertTrue("Bearer " in response.get("headers").get("Refresh"))
 
     @patch("api.users.users_repository.UsersRepository.get_user_by_email")
     def test_login_invalid_credentials(self, mock_get_user_by_email):
