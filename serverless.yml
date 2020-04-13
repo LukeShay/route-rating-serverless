@@ -5,6 +5,10 @@ frameworkVersion: ">=1.2.0 <2.0.0"
 plugins:
   - serverless-python-requirements
 
+custom:
+  pythonRequirements:
+    layer: true
+
 package:
   exclude:
     - ./**
@@ -19,6 +23,10 @@ x-common-lambda-env: &common-lambda-env
   DATABASE_PASSWORD: ${env:DATABASE_PASSWORD}
   LOG: TRUE
 
+x-common-lambda-properties: &common-lambda-properties
+  layers:
+    - { Ref: PythonRequirementsLambdaLayer }
+
 provider:
   name: aws
   runtime: python3.8
@@ -31,6 +39,7 @@ provider:
 
 functions:
   basic-auth:
+    <<: *common-lambda-properties
     environment:
       <<: *common-lambda-env
     handler: api/handlers/auth_handler.basic_auth_handler
@@ -41,6 +50,7 @@ functions:
           path: auth/basic
           method: post
   admin-auth:
+    <<: *common-lambda-properties
     environment:
       <<: *common-lambda-env
     handler: api/handlers/auth_handler.admin_auth_handler
@@ -51,6 +61,7 @@ functions:
           path: auth/admin
           method: post
   login:
+    <<: *common-lambda-properties
     environment:
       <<: *common-lambda-env
     handler: api/handlers/auth_handler.login_handler

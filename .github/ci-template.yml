@@ -41,7 +41,7 @@ jobs:
       - <<: *checkout-code
       - <<: *setup-python
       - run: pip install -Ur requirements.txt -Ur requirements.dev.txt
-      - run: JWT_SECRET=${{ secrets.JWT_SECRET }} REFRESH_SECRET=${{ secrets.REFRESH_SECRET }} make unit-tests
+      - run: JWT_SECRET=${{ secrets.JWT_SECRET }} REFRESH_SECRET=${{ secrets.REFRESH_SECRET }} make ut
   integration-test:
     runs-on: ubuntu-latest
     name: Integration test
@@ -60,7 +60,7 @@ jobs:
           DATABASE_URL=${{ secrets.DATABASE_URL }} \
           DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }} \
           DATABASE_USERNAME=${{ secrets.DATABASE_USERNAME }} \
-          make integration-tests
+          make it
   deploy-dev:
     needs:
       - lint
@@ -105,7 +105,7 @@ jobs:
           DATABASE_URL=${{ secrets.DATABASE_URL }} \
           DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }} \
           DATABASE_USERNAME=${{ secrets.DATABASE_USERNAME }} \
-          make integration-tests-remote
+          make itr
   deploy-prod:
     needs:
       - integration-test-remote
