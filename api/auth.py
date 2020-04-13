@@ -3,19 +3,24 @@ from munch import Munch
 import jwt
 import os
 import logging
+import time
 
 
 ADMIN_AUTHORITY = "ADMIN"
 BASIC_AUTHORITY = "BASIC"
 
 
+def current_milli_time():
+    return int(round(time.time() * 1000))
+
+
 class JwtPayload:
-    def __init__(self, user_id, email, authorities, issued_at, expires):
+    def __init__(self, user_id, email, authorities, issued_at, expires_in):
         self.id = user_id
         self.email = email
         self.authorities = authorities
         self.issued_at = issued_at
-        self.expires = expires
+        self.expires_in = expires_in
 
     @classmethod
     def from_jwt_payload(cls, jwt_payload):
@@ -24,8 +29,14 @@ class JwtPayload:
             jwt_payload.get("email", None),
             jwt_payload.get("authorities", None),
             jwt_payload.get("issued_at", None),
-            jwt_payload.get("expires", None),
+            jwt_payload.get("expires_in", None),
         )
+
+    @classmethod
+    def generate_as_dict(cls, user_id, email, authorities, expires_in):
+        return cls(
+            user_id, email, authorities, current_milli_time(), expires_in
+        ).as_dict()
 
     def as_dict(self):
         return {
@@ -33,7 +44,7 @@ class JwtPayload:
             "email": self.email,
             "authorities": self.authorities,
             "issued_at": self.issued_at,
-            "expires": self.expires,
+            "expires_in": self.expires_in,
         }
 
 
@@ -76,7 +87,7 @@ class Auth:
             logging.info("authorities is missing from jwt payload.")
             return False
 
-        if not payload.expires:
+        if not payload.expires_in:
             logging.info("expires is missing from jwt payload.")
             return False
 

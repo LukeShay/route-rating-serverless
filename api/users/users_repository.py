@@ -7,11 +7,11 @@ class UsersRepository:
             database_session if database_session else create_database_session()
         )
 
-    def get_user_by_username(self, username):
-        return self.session.query(
-            "SELECT * FROM users WHERE username=%(username)s LIMIT 1",
-            {"username": username},
-        )
+    # def get_user_by_username(self, username):
+    #     return self.session.query(
+    #         "SELECT * FROM users WHERE username=%(username)s LIMIT 1",
+    #         {"username": username},
+    #     )
 
     def get_users(self):
         return self.session.query("SELECT * FROM users")

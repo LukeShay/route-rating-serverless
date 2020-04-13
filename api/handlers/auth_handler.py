@@ -24,9 +24,9 @@ def login_handler(event: ApiGatewayEvent):
     logging.info(event)
 
     users_service = UsersService(event.database_session)
-    user = users_service.login(User.from_camel_dict(event.body))
+    user, headers = users_service.login(User.from_camel_dict(event.body))
 
     if not user:
         return ApiGatewayResponse.forbidden_json_response()
 
-    return ApiGatewayResponse.ok_json_response(user.as_json_response())
+    return ApiGatewayResponse.ok_json_response(user.as_json_response(), headers)

@@ -87,6 +87,21 @@ class User:
             "role": self.role,
         }
 
+    def as_snake_dict(self):
+        return {
+            "id": self.id,
+            "username": self.username,
+            "password": self.password,
+            "city": self.city,
+            "state": self.state,
+            "first_name": self.first_name,
+            "last_name": self.last_name,
+            "email": self.email,
+            "phone_number": self.phone_number,
+            "authority": self.authority,
+            "role": self.role,
+        }
+
     def as_dict(self):
         return self.as_camel_dict()
 

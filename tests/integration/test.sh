@@ -1,7 +1,7 @@
 #!/bin/bash -e
 
-. ./integration/utils.sh
-. ./integration/auth_integration.sh
+. ./tests/integration/utils.sh
+. ./tests/integration/auth_integration.sh
 
 run-tests() {
     echo "Testing basic auth..."

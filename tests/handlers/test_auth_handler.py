@@ -25,14 +25,14 @@ class TestAuthHandler(TestCase):
             "email": "lukeshay",
             "id": "some_id",
             "authorities": "ADMIN",
-            "expires": "never",
+            "expires_in": "never",
             "issued_at": "10000",
         }
         self.valid_basic_jwt_payload = {
             "email": "lukeshay",
             "id": "some_id",
             "authorities": "BASIC",
-            "expires": "never",
+            "expires_in": "never",
             "issued_at": "10000",
         }
         self.invalid_jwt_payload_no_expires = {
@@ -44,26 +44,26 @@ class TestAuthHandler(TestCase):
         self.invalid_jwt_payload_no_email = {
             "id": "some_id",
             "authorities": "ADMIN",
-            "expires": "never",
+            "expires_in": "never",
             "issued_at": "10000",
         }
         self.invalid_jwt_payload_no_authorities = {
             "email": "lukeshay",
             "id": "some_id",
-            "expires": "never",
+            "expires_in": "never",
             "issued_at": "10000",
         }
         self.invalid_jwt_payload_no_id = {
             "email": "lukeshay",
             "authorities": "ADMIN",
-            "expires": "never",
+            "expires_in": "never",
             "issued_at": "10000",
         }
         self.invalid_jwt_payload_no_issued_at = {
             "email": "lukeshay",
             "id": "some_id",
             "authorities": "ADMIN",
-            "expires": "never",
+            "expires_in": "never",
         }
 
         self.test_password = "some_password"
@@ -312,6 +312,10 @@ class TestAuthHandler(TestCase):
         self.assertEqual(200, response.get("statusCode", None))
         self.assertEqual(self.test_user.email, response.get("body")["email"])
         self.assertEqual(self.test_user.id, response.get("body")["id"])
+        self.assertIsNotNone(response.get("headers").get("Authorization"))
+        self.assertIsNotNone(response.get("headers").get("Refresh"))
+        self.assertTrue("Bearer " in response.get("headers").get("Authorization"))
+        self.assertTrue("Bearer " in response.get("headers").get("Refresh"))
 
     @patch("api.users.users_repository.UsersRepository.get_user_by_email")
     def test_login_invalid_credentials(self, mock_get_user_by_email):
