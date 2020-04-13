@@ -25,6 +25,9 @@ ut:
 it:
 	@./integration/test.sh test-local dev
 
+## runs unit and integration tests
+test: ut it
+
 ## runs the integration tests using yarn serverless on dev
 itr:
 	@./integration/test.sh test-remote dev
