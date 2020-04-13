@@ -1,4 +1,5 @@
 TAG=sha-$(shell git rev-parse --short HEAD)$(shell git diff --quiet || echo ".uncommitted")
+IMAGE_NAME=route-rating-serverless
 
 .PHONY: default help lint format clean integration-tests deploy generate-secrets unit-tests integration-tests-remote smoke-test
 
@@ -17,15 +18,15 @@ format:
 	@black api/ tests/
 
 ## runs all unit tests
-unit-tests:
+ut:
 	@pytest --junitxml=./test_output/test-report.xml --cov=api --cov-report=xml:test_output/coverage.xml --cov-report=html:test_output/coverage tests
 
 ## runs the integration tests using yarn serverless local
-integration-tests:
+it:
 	@./integration/test.sh test-local dev
 
 ## runs the integration tests using yarn serverless on dev
-integration-tests-remote:
+itr:
 	@./integration/test.sh test-remote dev
 
 ## runs the integration tests using yarn serverless on prod
@@ -34,12 +35,9 @@ smoke-test:
 
 ## cleans all temp files
 clean:
-	@rm -rf .pytest_cache test_output .coverage rli.egg-info .pytest_cache .scannerwork
+	@rm -rf .pytest_cache test_output .coverage rli.egg-info .pytest_cache .scannerwork .serverless
 
 ## deploys local version to aws dev env
-deploy: generate-secrets
-	@yarn serverless deploy
+deploy: clean
+	 @yarn serverless deploy
 
-## creates the secrets.json file
-generate-secrets:
-	@echo "{\"JWT_SECRET\": \"${JWT_SECRET}\",\"REFRESH_SECRET\": \"${REFRESH_SECRET}\",\"DATABASE_PASSWORD\": \"${DATABASE_PASSWORD_FOR_JSON}\",\"DATABASE_USERNAME\": \"${DATABASE_USERNAME}\",\"DATABASE_URL\": \"${DATABASE_URL}\"}" | jq . > secrets.json
