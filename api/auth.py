@@ -21,8 +21,6 @@ class Auth:
                 if "Bearer " in self.event.headers.Authorization
                 else self.event.headers.Authorization
             )
-        else:
-            return None
 
     @property
     def refresh_header(self) -> Optional[str]:
@@ -32,8 +30,6 @@ class Auth:
                 if "Bearer " in self.event.headers.Refresh
                 else self.event.headers.Refresh
             )
-        else:
-            return None
 
     def validate_jwt(self) -> (bool, Optional[str], Optional[str]):
         jwt_payload = self.get_jwt_payload()
@@ -62,8 +58,8 @@ class Auth:
                 )
             else:
                 return False, None, None
-
-        return True, self.auth_header, self.refresh_header
+        else:
+            return True, self.auth_header, self.refresh_header
 
     def is_admin(self) -> bool:
         return ADMIN_AUTHORITY in self.get_jwt_payload().authorities
