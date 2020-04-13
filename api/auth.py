@@ -56,10 +56,9 @@ class Auth:
                     new_jwt,
                     self.refresh_header,
                 )
-            else:
-                return False, None, None
-        else:
-            return True, self.auth_header, self.refresh_header
+            return False, None, None
+
+        return True, self.auth_header, self.refresh_header
 
     def is_admin(self) -> bool:
         return ADMIN_AUTHORITY in self.get_jwt_payload().authorities
