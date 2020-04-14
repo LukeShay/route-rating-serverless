@@ -4,7 +4,7 @@ import traceback
 
 from api.auth import Auth
 from api.utils.db_utils import create_database_session
-from api.api_gateway import ApiGatewayEvent, ApiGatewayResponse
+from api.api_gateway import ApiGatewayEvent
 
 
 def validate_kwargs(*args, **kwargs):
@@ -26,16 +26,17 @@ def get_event_params(database, *args, **kwargs):
 def validate_jwt(
     function, event, context, database_session, admin_auth, *args, **kwargs
 ):
+    api_event = ApiGatewayEvent(event, context, database_session, None, None, None)
     try:
         auth = Auth(args[0][0])
 
         valid, jwt_token, refresh_token = auth.validate_jwt()
 
         if not valid:
-            return ApiGatewayResponse.forbidden_json_response()
+            return api_event.forbidden_response()
 
         if admin_auth and not auth.is_admin():
-            return ApiGatewayResponse.unauthorized_json_response()
+            return api_event.unauthorized_response()
 
         return function(
             ApiGatewayEvent(
@@ -52,7 +53,7 @@ def validate_jwt(
         logging.error(traceback.format_exc())
         logging.exception(e)
 
-        return ApiGatewayResponse.forbidden_json_response()
+        return api_event.forbidden_response()
 
 
 def handler(database):

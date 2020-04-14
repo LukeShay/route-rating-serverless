@@ -46,65 +46,58 @@ class ApiGatewayEvent:
         """
         return self._user_authority
 
-    def ok_json_response(self, body=None, headers=None):
-        if not headers:
-            headers = {}
-        return ApiGatewayResponse.ok_json_response(body, {**self._headers, **headers})
+    def ok_response(self, body=None, headers=None) -> dict:
+        """
+        Returns the dict for an OK (200) response. The content type header
+        defaults to JSON unless otherwise specified. The response format is
+        what is required for API Gateway.
+        :param body: The body of the response
+        :param headers: The headers of the response
+        :return: The response message as a dict
+        """
+        return self._response(200, body, headers)
 
-    def unauthorized_json_response(self, body=None, headers=None):
-        if not headers:
-            headers = {}
-        return ApiGatewayResponse.unauthorized_json_response(
-            body, {**self._headers, **headers}
-        )
+    def bad_request_response(self, body=None, headers=None) -> dict:
+        """
+        Returns the dict for a BAD_REQUEST (400) response. The content type
+        header defaults to JSON unless otherwise specified. The response format
+        is what is required for API Gateway.
+        :param body: The body of the response
+        :param headers: The headers of the response
+        :return: The response message as a dict
+        """
+        return self._response(400, body, headers)
 
-    def forbidden_json_response(self, body=None, headers=None):
-        if not headers:
-            headers = {}
-        return ApiGatewayResponse.forbidden_json_response(
-            body, {**self._headers, **headers}
-        )
+    def unauthorized_response(self, body=None, headers=None) -> dict:
+        """
+        Returns the dict for an UNAUTHORIZED (401) response. The content type
+        header defaults to JSON unless otherwise specified. The response format
+        is what is required for API Gateway.
+        :param body: The body of the response
+        :param headers: The headers of the response
+        :return: The response message as a dict
+        """
+        return self._response(401, body, headers)
 
+    def forbidden_response(self, body=None, headers=None) -> dict:
+        """
+        Returns the dict for an FORBIDDEN (403) response. The content type
+        header defaults to JSON unless otherwise specified. The response format
+        is what is required for API Gateway.
+        :param body: The body of the response
+        :param headers: The headers of the response
+        :return: The response message as a dict
+        """
+        return self._response(403, body, headers)
 
-class ApiGatewayResponse:
-    def __init__(self, status_code=200, body=None, headers=None):
-        if not headers:
-            headers = {}
-
-        self.status_code = status_code
-        self.body = body
-        self.headers = headers
-
-    @classmethod
-    def ok_json_response(cls, body=None, headers=None):
-        if not headers:
-            headers = {}
-
-        headers.update({"Content-type": "application/json"})
-
-        return cls(body=body, headers=headers).as_dict()
-
-    @classmethod
-    def unauthorized_json_response(cls, body=None, headers=None):
-        if not headers:
-            headers = {}
-
-        headers.update({"Content-type": "application/json"})
-
-        return cls(status_code=401, body=body).as_dict()
-
-    @classmethod
-    def forbidden_json_response(cls, body=None, headers=None):
+    def _response(self, status_code=200, body=None, headers=None) -> dict:
         if not headers:
             headers = {}
 
         headers.update({"Content-type": "application/json"})
 
-        return cls(status_code=403, body=body).as_dict()
-
-    def as_dict(self):
         return {
-            "statusCode": self.status_code,
-            "body": self.body,
-            "headers": self.headers,
+            "statusCode": status_code,
+            "body": body,
+            "headers": {**self._headers, **headers},
         }

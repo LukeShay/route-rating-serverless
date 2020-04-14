@@ -3,6 +3,7 @@ from api.users.user import User
 import logging
 import bcrypt
 from api.auth import Jwt
+import uuid
 
 
 SALT = bcrypt.gensalt(rounds=10, prefix=b"2a")
@@ -24,7 +25,7 @@ class UsersService:
 
         user_result = self.get_user_by_email(user)
 
-        if not user_result.all_fields_present() or not UsersService.check_passwords(
+        if not user_result or not UsersService.check_passwords(
             user.password, user_result.password
         ):
             return None, None
@@ -40,15 +41,15 @@ class UsersService:
             },
         )
 
-    # def get_user_by_username(self, request_user: User) -> User or None:
-    #     logging.debug(f"Getting user by username:\n{request_user.as_camel_dict()}")
-    #
-    #     result = self.users_repository.get_user_by_username(request_user.username)
-    #
-    #     user = User.from_snake_dict(result.as_dict())
-    #
-    #     result.free()
-    #     return user
+    def get_user_by_username(self, request_user: User) -> User or None:
+        logging.debug(f"Getting user by username:\n{request_user.as_camel_dict()}")
+
+        result = self.users_repository.get_user_by_username(request_user.username)
+
+        user = User.from_snake_dict(result.as_dict())
+
+        result.free()
+        return user if user.id else None
 
     def get_user_by_email(self, request_user: User) -> User or None:
         logging.debug(f"Getting user by email:\n{request_user.as_camel_dict()}")
@@ -60,7 +61,7 @@ class UsersService:
         logging.debug(f"User from database:\n{user.as_camel_dict()}")
 
         result.free()
-        return user
+        return user if user.id else None
 
     @staticmethod
     def check_passwords(password: str, hashed_password: str) -> bool:
@@ -68,6 +69,23 @@ class UsersService:
         return bcrypt.checkpw(password.encode("utf8"), hashed_password.encode("utf8"))
 
     @staticmethod
-    def encrypt_password(password: str) -> str:
+    def encrypt_password(password: str) -> bytes:
         logging.debug("Encrypting password")
         return bcrypt.hashpw(password.encode("utf8"), SALT)
+
+    def create_basic_user(self, new_user) -> User:
+        new_user.authority = "BASIC"
+        new_user.role = "BASIC_ROLE"
+        return self.create_user(new_user)
+
+    def create_user(self, new_user: User) -> User:
+        new_user.id = uuid.uuid4()
+        new_user.password = self.encrypt_password(new_user.password).decode("utf8")
+
+        result = self.users_repository.save(new_user)
+
+        user = User.from_snake_dict(result.as_dict())
+
+        result.free()
+
+        return user
