@@ -76,3 +76,15 @@ functions:
       - http:
           path: auth/login
           method: post
+  CreateUser:
+    name: ${self:provider.stage}-${self:service}-create-user
+    <<: *common-lambda-properties
+    environment:
+      <<: *common-lambda-env
+    handler: api/handlers/users_handler.create_user_handler
+    tags:
+      service: users-api
+    events:
+      - http:
+          path: users/create
+          method: post

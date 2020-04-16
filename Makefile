@@ -26,7 +26,7 @@ it:
 	@./tests/integration/test.sh test-local dev
 
 ## runs unit and integration tests
-test: ut it
+test: clean ut it
 
 ## runs the integration tests using yarn serverless on dev
 itr:
@@ -38,7 +38,7 @@ smoke-test:
 
 ## cleans all temp files
 clean:
-	@rm -rf .pytest_cache test_output .coverage rli.egg-info .pytest_cache .scannerwork .serverless
+	@rm -rf .pytest_cache test_output .coverage rli.egg-info .pytest_cache .scannerwork .serverless route-rating.log
 
 ## deploys local version to aws dev env
 deploy: clean

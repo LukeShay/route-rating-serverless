@@ -1,10 +1,11 @@
 import logging
 import os
 import traceback
+import sys
 
 from api.auth import Auth
 from api.utils.db_utils import create_database_session
-from api.api_gateway import ApiGatewayEvent, ApiGatewayResponse
+from api.api_gateway import ApiGatewayEvent
 
 
 def validate_kwargs(*args, **kwargs):
@@ -26,16 +27,17 @@ def get_event_params(database, *args, **kwargs):
 def validate_jwt(
     function, event, context, database_session, admin_auth, *args, **kwargs
 ):
+    api_event = ApiGatewayEvent(event, context, database_session, None, None, None)
     try:
         auth = Auth(args[0][0])
 
         valid, jwt_token, refresh_token = auth.validate_jwt()
 
         if not valid:
-            return ApiGatewayResponse.forbidden_json_response()
+            return api_event.forbidden_response()
 
         if admin_auth and not auth.is_admin():
-            return ApiGatewayResponse.unauthorized_json_response()
+            return api_event.unauthorized_response()
 
         return function(
             ApiGatewayEvent(
@@ -52,7 +54,7 @@ def validate_jwt(
         logging.error(traceback.format_exc())
         logging.exception(e)
 
-        return ApiGatewayResponse.forbidden_json_response()
+        return api_event.forbidden_response()
 
 
 def handler(database):
@@ -101,5 +103,21 @@ class InvalidRequestException(Exception):
 
 
 def setup_logger():
-    if os.getenv("LOG", None) == "TRUE":
-        logging.getLogger().setLevel(logging.DEBUG)
+    handlers = []
+    basic_format = logging.Formatter(logging.BASIC_FORMAT)
+
+    stdout_handler = logging.StreamHandler(sys.stdout)
+    stdout_handler.setLevel(logging.ERROR)
+
+    if os.getenv("LOG", None) == "TRUE" or os.getenv("TEST_RUN") == "TRUE":
+        stdout_handler.setLevel(logging.DEBUG)
+
+    stdout_handler.setFormatter(basic_format)
+    handlers.append(stdout_handler)
+
+    file_handler = logging.FileHandler("route-rating.log")
+    file_handler.setLevel(logging.DEBUG)
+    file_handler.setFormatter(basic_format)
+    handlers.append(file_handler)
+
+    logging.basicConfig(level=logging.DEBUG, handlers=handlers, force=True)

@@ -30,7 +30,7 @@ class DatabaseResult:
         self.result = result
 
     def as_dict(self):
-        return self.result.as_snake_dict()
+        return self.result.as_snake_dict() if self.result else {}
 
     def free(self):
         return

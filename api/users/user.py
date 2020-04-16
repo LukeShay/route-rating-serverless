@@ -26,9 +26,11 @@ class User:
         self.role = role
 
     def all_fields_present(self):
+        return self.id and self.new_user_fields_present()
+
+    def new_user_fields_present(self):
         return (
-            self.id
-            and self.username
+            self.username
             and self.password
             and self.city
             and self.state
@@ -36,8 +38,6 @@ class User:
             and self.last_name
             and self.email
             and self.phone_number
-            and self.authority
-            and self.role
         )
 
     @classmethod
