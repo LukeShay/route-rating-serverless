@@ -15,7 +15,7 @@ def create_database_session() -> Session or None:
     url = os.getenv("DATABASE_URL")
     test_run = os.getenv("TEST_RUN")
 
-    if test_run:
+    if test_run == "TRUE":
         return None
 
     if not username or not password or not url:

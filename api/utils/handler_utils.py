@@ -1,6 +1,7 @@
 import logging
 import os
 import traceback
+import sys
 
 from api.auth import Auth
 from api.utils.db_utils import create_database_session
@@ -102,5 +103,21 @@ class InvalidRequestException(Exception):
 
 
 def setup_logger():
-    if os.getenv("LOG", None) == "TRUE":
-        logging.getLogger().setLevel(logging.DEBUG)
+    handlers = []
+    basic_format = logging.Formatter(logging.BASIC_FORMAT)
+
+    stdout_handler = logging.StreamHandler(sys.stdout)
+    stdout_handler.setLevel(logging.ERROR)
+
+    if os.getenv("LOG", None) == "TRUE" or os.getenv("TEST_RUN") == "TRUE":
+        stdout_handler.setLevel(logging.DEBUG)
+
+    stdout_handler.setFormatter(basic_format)
+    handlers.append(stdout_handler)
+
+    file_handler = logging.FileHandler("route-rating.log")
+    file_handler.setLevel(logging.DEBUG)
+    file_handler.setFormatter(basic_format)
+    handlers.append(file_handler)
+
+    logging.basicConfig(level=logging.DEBUG, handlers=handlers, force=True)

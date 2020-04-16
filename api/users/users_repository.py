@@ -23,7 +23,7 @@ class UsersRepository:
 
     def get_user_by_id(self, user_id):
         return self.session.query(
-            "SELECT * FROM users WHERE id=%(id)s LIMIT 1", {"id": str(user_id)}
+            "SELECT * FROM users WHERE id=%(id)s LIMIT 1", {"id": user_id}
         )
 
     def save(self, user):

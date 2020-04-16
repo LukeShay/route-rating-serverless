@@ -1,4 +1,3 @@
-from unittest import TestCase
 from unittest.mock import patch
 from api.auth import Auth
 from api.handlers.auth_handler import (
@@ -7,6 +6,7 @@ from api.handlers.auth_handler import (
     login_handler,
 )
 from api.users.user import User
+from tests.test_base import TestBase
 from tests.utilities import (
     ApiGatewayEvent,
     generate_jwt,
@@ -17,7 +17,7 @@ import os
 import bcrypt
 
 
-class TestAuthHandler(TestCase):
+class TestAuthHandler(TestBase):
     def setUp(self) -> None:
         os.environ["TEST_RUN"] = "TRUE"
 

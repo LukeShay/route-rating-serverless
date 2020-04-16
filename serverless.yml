@@ -81,7 +81,7 @@ functions:
     <<: *common-lambda-properties
     environment:
       <<: *common-lambda-env
-    handler: api/handlers/user_handler.new_user_handler
+    handler: api/handlers/users_handler.create_user_handler
     tags:
       service: users-api
     events:
