@@ -73,7 +73,7 @@ jobs:
         DATABASE_URL=${{ secrets.DATABASE_URL }} \
         DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }} \
         DATABASE_USERNAME=${{ secrets.DATABASE_USERNAME }} \
-        yarn serverless deploy -s dev
+        yarn serverless deploy -s dev --force
   integration-test-remote:
     runs-on: ubuntu-latest
     needs:
@@ -137,7 +137,7 @@ jobs:
         DATABASE_URL=${{ secrets.DATABASE_URL }} \
         DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }} \
         DATABASE_USERNAME=${{ secrets.DATABASE_USERNAME }} \
-        yarn serverless deploy -s prod
+        yarn serverless deploy -s prod --force
   smoke-test:
     runs-on: ubuntu-latest
     needs:

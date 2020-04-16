@@ -42,5 +42,5 @@ clean:
 
 ## deploys local version to aws dev env
 deploy: clean
-	 @yarn serverless deploy
+	 @yarn serverless deploy -s dev --force
 
