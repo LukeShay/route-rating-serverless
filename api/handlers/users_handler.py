@@ -35,6 +35,9 @@ def create_user_handler(event: ApiGatewayEvent):
     if not users_service.valid_username(new_user):
         response["username"] = "Invalid username."
 
+    if not users_service.valid_phone_number(new_user):
+        response["phoneNumber"] = "Invalid phone number."
+
     if len(response.keys()) > 0:
         return event.bad_request_response(response)
 

@@ -24,6 +24,20 @@ class TestUsersHandler(TestBase):
             user_id=None,
         )
 
+        self.invalid_new_user = User(
+            first_name="first",
+            last_name="last",
+            email="emailgmail.com",
+            password="aa)(*098ljk",
+            username="someu)(*&^%$sername",
+            city="Ames",
+            state="Iowa",
+            phone_number="999999999",
+            authority=None,
+            role=None,
+            user_id=None,
+        )
+
         self.mock_validate_email = Mock()
         self.mock_validate_email.return_value = True
         users_service.validate_email = self.mock_validate_email
@@ -66,6 +80,31 @@ class TestUsersHandler(TestBase):
 
         self.assertEqual(
             {"email": "Email is taken.", "username": "Username is taken."},
+            response["body"],
+        )
+        self.assertEqual(400, response["statusCode"])
+
+    @patch("api.users.users_repository.UsersRepository.save")
+    @patch("api.users.users_repository.UsersRepository.get_user_by_email")
+    @patch("api.users.users_repository.UsersRepository.get_user_by_username")
+    def test_create_invalid_basic_user(
+        self, mock_get_user_by_username, mock_get_user_by_email, mock_save
+    ):
+        mock_get_user_by_username.return_value = DatabaseResult(None)
+        mock_get_user_by_email.return_value = DatabaseResult(None)
+        mock_save.return_value = DatabaseResult(self.valid_new_user)
+
+        response = create_user_handler(
+            ApiGatewayEvent(body=self.invalid_new_user.as_camel_dict()).as_dict(), None
+        )
+
+        self.assertEqual(
+            {
+                "email": "Invalid email.",
+                "password": "Invalid password.",
+                "username": "Invalid username.",
+                "phoneNumber": "Invalid phone number.",
+            },
             response["body"],
         )
         self.assertEqual(400, response["statusCode"])
