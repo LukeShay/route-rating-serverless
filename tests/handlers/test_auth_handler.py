@@ -19,8 +19,6 @@ import bcrypt
 
 class TestAuthHandler(TestBase):
     def setUp(self) -> None:
-        os.environ["TEST_RUN"] = "TRUE"
-
         self.valid_jwt_payload = {
             "email": "lukeshay",
             "id": "some_id",

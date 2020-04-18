@@ -1,11 +1,16 @@
+import uuid
 from unittest.mock import patch, Mock
 
 from api.users.user import User
-from api.handlers.users_handler import create_user_handler
+from api.handlers.users_handler import create_user_handler, create_admin_user_handler
 from api.users import users_service
 from tests.test_base import TestBase
 
-from tests.utilities import ApiGatewayEvent, DatabaseResult
+from tests.utilities import (
+    ApiGatewayEvent,
+    DatabaseResult,
+    generate_jwt,
+)
 
 
 class TestUsersHandler(TestBase):
@@ -37,6 +42,27 @@ class TestUsersHandler(TestBase):
             role=None,
             user_id=None,
         )
+        self.valid_jwt_payload = {
+            "email": "lukeshay",
+            "id": "some_id",
+            "authorities": "ADMIN",
+            "expires_in": "never",
+            "issued_at": "10000",
+        }
+        self.valid_basic_jwt_payload = {
+            "email": "lukeshay",
+            "id": "some_id",
+            "authorities": "BASIC",
+            "expires_in": "never",
+            "issued_at": "10000",
+        }
+
+        self.basic_headers = {
+            "Authorization": f"Bearer {generate_jwt(self.valid_basic_jwt_payload)}"
+        }
+        self.admin_headers = {
+            "Authorization": f"Bearer {generate_jwt(self.valid_jwt_payload)}"
+        }
 
         self.mock_validate_email = Mock()
         self.mock_validate_email.return_value = True
@@ -56,6 +82,9 @@ class TestUsersHandler(TestBase):
             ApiGatewayEvent(body=self.valid_new_user.as_camel_dict()).as_dict(), None
         )
 
+        mock_get_user_by_username.assert_called_once()
+        mock_get_user_by_email.assert_called_once()
+        mock_save.assert_called_once()
         self.assertEqual(self.valid_new_user.as_json_response(), response["body"])
         self.assertEqual(200, response["statusCode"])
 
@@ -64,10 +93,11 @@ class TestUsersHandler(TestBase):
         self.assertEqual({"message": "A field is missing."}, response["body"])
         self.assertEqual(400, response["statusCode"])
 
+    @patch("api.users.users_repository.UsersRepository.save")
     @patch("api.users.users_repository.UsersRepository.get_user_by_email")
     @patch("api.users.users_repository.UsersRepository.get_user_by_username")
     def test_create_valid_basic_user_username_and_email_taken(
-        self, mock_get_user_by_username, mock_get_user_by_email
+        self, mock_get_user_by_username, mock_get_user_by_email, mock_save
     ):
         temp_user = self.valid_new_user
         temp_user.id = "adsf"
@@ -78,6 +108,9 @@ class TestUsersHandler(TestBase):
             ApiGatewayEvent(body=self.valid_new_user.as_camel_dict()).as_dict(), None
         )
 
+        mock_get_user_by_username.assert_called_once()
+        mock_get_user_by_email.assert_called_once()
+        mock_save.assert_not_called()
         self.assertEqual(
             {"email": "Email is taken.", "username": "Username is taken."},
             response["body"],
@@ -108,3 +141,95 @@ class TestUsersHandler(TestBase):
             response["body"],
         )
         self.assertEqual(400, response["statusCode"])
+
+    @patch("api.users.users_repository.UsersRepository.save")
+    @patch("api.users.users_repository.UsersRepository.get_user_by_email")
+    @patch("api.users.users_repository.UsersRepository.get_user_by_username")
+    def test_create_valid_admin_user(
+        self, mock_get_user_by_username, mock_get_user_by_email, mock_save
+    ):
+        mock_get_user_by_username.return_value = DatabaseResult(None)
+        mock_get_user_by_email.return_value = DatabaseResult(None)
+        mock_save.return_value = DatabaseResult(self.valid_new_user)
+
+        response = create_user_handler(
+            ApiGatewayEvent(
+                body=self.valid_new_user.as_camel_dict(), headers=self.admin_headers
+            ).as_dict(),
+            None,
+        )
+
+        mock_get_user_by_username.assert_called_once()
+        mock_get_user_by_email.assert_called_once()
+        mock_save.assert_called_once()
+        self.assertEqual(self.valid_new_user.as_json_response(), response["body"])
+        self.assertEqual(200, response["statusCode"])
+
+    def test_create_missing_field_admin_user(self):
+        response = create_user_handler(
+            ApiGatewayEvent(body={}, headers=self.admin_headers).as_dict(), None
+        )
+        self.assertEqual({"message": "A field is missing."}, response["body"])
+        self.assertEqual(400, response["statusCode"])
+
+    @patch("api.users.users_repository.UsersRepository.save")
+    @patch("api.users.users_repository.UsersRepository.get_user_by_email")
+    @patch("api.users.users_repository.UsersRepository.get_user_by_username")
+    def test_create_valid_admin_user_username_and_email_taken(
+        self, mock_get_user_by_username, mock_get_user_by_email, mock_save
+    ):
+        temp_user = self.valid_new_user
+        temp_user.id = "adsf"
+        mock_get_user_by_username.return_value = DatabaseResult(self.valid_new_user)
+        mock_get_user_by_email.return_value = DatabaseResult(self.valid_new_user)
+
+        response = create_user_handler(
+            ApiGatewayEvent(
+                body=self.valid_new_user.as_camel_dict(), headers=self.admin_headers
+            ).as_dict(),
+            None,
+        )
+
+        mock_get_user_by_username.assert_called_once()
+        mock_get_user_by_email.assert_called_once()
+        mock_save.assert_not_called()
+        self.assertEqual(
+            {"email": "Email is taken.", "username": "Username is taken."},
+            response["body"],
+        )
+        self.assertEqual(400, response["statusCode"])
+
+    @patch("api.users.users_repository.UsersRepository.save")
+    @patch("api.users.users_repository.UsersRepository.get_user_by_email")
+    @patch("api.users.users_repository.UsersRepository.get_user_by_username")
+    def test_create_invalid_admin_user(
+        self, mock_get_user_by_username, mock_get_user_by_email, mock_save
+    ):
+        mock_get_user_by_username.return_value = DatabaseResult(None)
+        mock_get_user_by_email.return_value = DatabaseResult(None)
+        mock_save.return_value = DatabaseResult(self.valid_new_user)
+
+        response = create_admin_user_handler(
+            ApiGatewayEvent(
+                body=self.invalid_new_user.as_camel_dict(), headers=self.admin_headers
+            ).as_dict(),
+            None,
+        )
+
+        self.assertEqual(
+            {
+                "email": "Invalid email.",
+                "password": "Invalid password.",
+                "username": "Invalid username.",
+                "phoneNumber": "Invalid phone number.",
+            },
+            response["body"],
+        )
+        self.assertEqual(400, response["statusCode"])
+
+    def test_create_admin_user_unauthorized(self):
+        response = create_admin_user_handler(
+            ApiGatewayEvent(body={}, headers=self.basic_headers).as_dict(), None
+        )
+        self.assertEqual(None, response["body"])
+        self.assertEqual(401, response["statusCode"])

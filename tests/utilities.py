@@ -1,6 +1,8 @@
 import jwt
 import os
 
+from api.jwt import Jwt
+
 
 class ApiGatewayEvent:
     def __init__(self, headers=None, body=None):
