@@ -1,9 +1,11 @@
+import json
 import uuid
 from unittest.mock import patch, Mock
 
 from api.users.user import User
 from api.handlers.users_handler import create_user_handler, create_admin_user_handler
 from api.users import users_service
+from tests.offline_handler import OfflineHandler
 from tests.test_base import TestBase
 
 from tests.utilities import (
@@ -78,8 +80,8 @@ class TestUsersHandler(TestBase):
         mock_get_user_by_email.return_value = DatabaseResult(None)
         mock_save.return_value = DatabaseResult(self.valid_new_user)
 
-        response = create_user_handler(
-            ApiGatewayEvent(body=self.valid_new_user.as_camel_dict()).as_dict(), None
+        response = OfflineHandler(create_user_handler).handle(
+            ApiGatewayEvent(body=self.valid_new_user.as_camel_dict()).as_dict()
         )
 
         mock_get_user_by_username.assert_called_once()
@@ -89,7 +91,9 @@ class TestUsersHandler(TestBase):
         self.assertEqual(200, response["statusCode"])
 
     def test_create_missing_field_basic_user(self):
-        response = create_user_handler(ApiGatewayEvent(body={}).as_dict(), None)
+        response = OfflineHandler(create_user_handler).handle(
+            ApiGatewayEvent(body={}).as_dict()
+        )
         self.assertEqual({"message": "A field is missing."}, response["body"])
         self.assertEqual(400, response["statusCode"])
 
@@ -104,8 +108,8 @@ class TestUsersHandler(TestBase):
         mock_get_user_by_username.return_value = DatabaseResult(self.valid_new_user)
         mock_get_user_by_email.return_value = DatabaseResult(self.valid_new_user)
 
-        response = create_user_handler(
-            ApiGatewayEvent(body=self.valid_new_user.as_camel_dict()).as_dict(), None
+        response = OfflineHandler(create_user_handler).handle(
+            ApiGatewayEvent(body=self.valid_new_user.as_camel_dict()).as_dict()
         )
 
         mock_get_user_by_username.assert_called_once()
@@ -127,8 +131,8 @@ class TestUsersHandler(TestBase):
         mock_get_user_by_email.return_value = DatabaseResult(None)
         mock_save.return_value = DatabaseResult(self.valid_new_user)
 
-        response = create_user_handler(
-            ApiGatewayEvent(body=self.invalid_new_user.as_camel_dict()).as_dict(), None
+        response = OfflineHandler(create_user_handler).handle(
+            ApiGatewayEvent(body=self.invalid_new_user.as_camel_dict()).as_dict()
         )
 
         self.assertEqual(
@@ -152,11 +156,10 @@ class TestUsersHandler(TestBase):
         mock_get_user_by_email.return_value = DatabaseResult(None)
         mock_save.return_value = DatabaseResult(self.valid_new_user)
 
-        response = create_user_handler(
+        response = OfflineHandler(create_admin_user_handler).handle(
             ApiGatewayEvent(
                 body=self.valid_new_user.as_camel_dict(), headers=self.admin_headers
-            ).as_dict(),
-            None,
+            ).as_dict()
         )
 
         mock_get_user_by_username.assert_called_once()
@@ -166,8 +169,8 @@ class TestUsersHandler(TestBase):
         self.assertEqual(200, response["statusCode"])
 
     def test_create_missing_field_admin_user(self):
-        response = create_user_handler(
-            ApiGatewayEvent(body={}, headers=self.admin_headers).as_dict(), None
+        response = OfflineHandler(create_admin_user_handler).handle(
+            ApiGatewayEvent(body={}, headers=self.admin_headers).as_dict()
         )
         self.assertEqual({"message": "A field is missing."}, response["body"])
         self.assertEqual(400, response["statusCode"])
@@ -183,11 +186,10 @@ class TestUsersHandler(TestBase):
         mock_get_user_by_username.return_value = DatabaseResult(self.valid_new_user)
         mock_get_user_by_email.return_value = DatabaseResult(self.valid_new_user)
 
-        response = create_user_handler(
+        response = OfflineHandler(create_admin_user_handler).handle(
             ApiGatewayEvent(
                 body=self.valid_new_user.as_camel_dict(), headers=self.admin_headers
-            ).as_dict(),
-            None,
+            ).as_dict()
         )
 
         mock_get_user_by_username.assert_called_once()
@@ -209,11 +211,10 @@ class TestUsersHandler(TestBase):
         mock_get_user_by_email.return_value = DatabaseResult(None)
         mock_save.return_value = DatabaseResult(self.valid_new_user)
 
-        response = create_admin_user_handler(
+        response = OfflineHandler(create_admin_user_handler).handle(
             ApiGatewayEvent(
                 body=self.invalid_new_user.as_camel_dict(), headers=self.admin_headers
-            ).as_dict(),
-            None,
+            ).as_dict()
         )
 
         self.assertEqual(
@@ -228,8 +229,8 @@ class TestUsersHandler(TestBase):
         self.assertEqual(400, response["statusCode"])
 
     def test_create_admin_user_unauthorized(self):
-        response = create_admin_user_handler(
-            ApiGatewayEvent(body={}, headers=self.basic_headers).as_dict(), None
+        response = OfflineHandler(create_admin_user_handler).handle(
+            ApiGatewayEvent(body={}, headers=self.basic_headers).as_dict()
         )
-        self.assertEqual(None, response["body"])
+        self.assertEqual({}, response["body"])
         self.assertEqual(401, response["statusCode"])

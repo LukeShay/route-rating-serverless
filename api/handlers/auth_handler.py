@@ -7,12 +7,12 @@ import logging
 
 @basic_handler(database=False)
 def basic_auth_handler(event: ApiGatewayEvent):
-    return event.ok_response({"id": event.user_id, "authority": event.user_authority})
+    return event.ok_response({"id": event.user_id, "authorities": event.user_authority})
 
 
 @admin_handler(database=False)
 def admin_auth_handler(event: ApiGatewayEvent):
-    return event.ok_response({"id": event.user_id, "authority": event.user_authority})
+    return event.ok_response({"id": event.user_id, "authorities": event.user_authority})
 
 
 @handler(database=True)
