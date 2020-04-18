@@ -1,3 +1,6 @@
+import json
+
+
 class User:
     def __init__(
         self,
@@ -41,35 +44,41 @@ class User:
         )
 
     @classmethod
-    def from_camel_dict(cls, json):
+    def from_camel_dict(cls, body):
+        if isinstance(body, str):
+            body = json.loads(body)
+
         return cls(
-            json.get("id", None),
-            json.get("username", None),
-            json.get("password", None),
-            json.get("city", None),
-            json.get("state", None),
-            json.get("firstName", None),
-            json.get("lastName", None),
-            json.get("email", None),
-            json.get("phoneNumber"),
-            json.get("authority", None),
-            json.get("role", None),
+            body.get("id", None),
+            body.get("username", None),
+            body.get("password", None),
+            body.get("city", None),
+            body.get("state", None),
+            body.get("firstName", None),
+            body.get("lastName", None),
+            body.get("email", None),
+            body.get("phoneNumber"),
+            body.get("authority", None),
+            body.get("role", None),
         )
 
     @classmethod
-    def from_snake_dict(cls, json):
+    def from_snake_dict(cls, body):
+        if isinstance(body, str):
+            body = json.loads(body)
+
         return cls(
-            json.get("id", None),
-            json.get("username", None),
-            json.get("password", None),
-            json.get("city", None),
-            json.get("state", None),
-            json.get("first_name", None),
-            json.get("last_name", None),
-            json.get("email", None),
-            json.get("phone_number"),
-            json.get("authority", None),
-            json.get("role", None),
+            body.get("id", None),
+            body.get("username", None),
+            body.get("password", None),
+            body.get("city", None),
+            body.get("state", None),
+            body.get("first_name", None),
+            body.get("last_name", None),
+            body.get("email", None),
+            body.get("phone_number"),
+            body.get("authority", None),
+            body.get("role", None),
         )
 
     def as_camel_dict(self):

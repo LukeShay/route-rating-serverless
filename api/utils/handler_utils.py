@@ -115,9 +115,4 @@ def setup_logger():
     stdout_handler.setFormatter(basic_format)
     handlers.append(stdout_handler)
 
-    # file_handler = logging.FileHandler("route-rating.log")
-    # file_handler.setLevel(logging.DEBUG)
-    # file_handler.setFormatter(basic_format)
-    # handlers.append(file_handler)
-
     logging.basicConfig(level=logging.DEBUG, handlers=handlers, force=True)

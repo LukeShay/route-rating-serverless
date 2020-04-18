@@ -1,6 +1,8 @@
 import jwt
 import os
 
+from api.jwt import Jwt
+
 
 class ApiGatewayEvent:
     def __init__(self, headers=None, body=None):
@@ -15,14 +17,14 @@ def generate_jwt(payload, secret=None):
     if not secret:
         secret = os.getenv("JWT_SECRET")
 
-    return jwt.encode(payload, secret, algorithm="HS256").decode("UTF-8")
+    return jwt.encode(payload, secret, algorithm="HS256").decode("utf8")
 
 
 def generate_refresh(payload, secret=None):
     if not secret:
         secret = os.getenv("REFRESH_SECRET")
 
-    return jwt.encode(payload, secret, algorithm="HS256").decode("UTF-8")
+    return jwt.encode(payload, secret, algorithm="HS256").decode("utf8")
 
 
 class DatabaseResult:

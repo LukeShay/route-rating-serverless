@@ -6,6 +6,7 @@ from api.handlers.auth_handler import (
     login_handler,
 )
 from api.users.user import User
+from tests.offline_handler import OfflineHandler
 from tests.test_base import TestBase
 from tests.utilities import (
     ApiGatewayEvent,
@@ -19,8 +20,6 @@ import bcrypt
 
 class TestAuthHandler(TestBase):
     def setUp(self) -> None:
-        os.environ["TEST_RUN"] = "TRUE"
-
         self.valid_jwt_payload = {
             "email": "lukeshay",
             "id": "some_id",
@@ -351,11 +350,10 @@ class TestAuthHandler(TestBase):
     def test_login_valid_credentials(self, mock_get_user_by_email):
         mock_get_user_by_email.return_value = DatabaseResult(self.test_user)
 
-        response = login_handler(
+        response = OfflineHandler(login_handler).handle(
             ApiGatewayEvent(
                 body={"email": self.test_user.email, "password": self.test_password,}
-            ).as_dict(),
-            None,
+            ).as_dict()
         )
 
         self.assertEqual(200, response.get("statusCode", None))
@@ -370,11 +368,10 @@ class TestAuthHandler(TestBase):
     def test_login_invalid_credentials(self, mock_get_user_by_email):
         mock_get_user_by_email.return_value = DatabaseResult(self.test_user)
 
-        response = login_handler(
+        response = OfflineHandler(login_handler).handle(
             ApiGatewayEvent(
                 body={"email": self.test_user.email, "password": "EYYYEYE",}
-            ).as_dict(),
-            None,
+            ).as_dict()
         )
 
         self.assertEqual(403, response.get("statusCode", None))

@@ -4,6 +4,7 @@ frameworkVersion: ">=1.2.0 <2.0.0"
 
 plugins:
   - serverless-python-requirements
+  - serverless-offline
 
 custom:
   pythonRequirements:
@@ -87,4 +88,17 @@ functions:
     events:
       - http:
           path: users/create
+          method: post
+
+  CreateAdminUser:
+    name: ${self:provider.stage}-${self:service}-create-user
+    <<: *common-lambda-properties
+    environment:
+      <<: *common-lambda-env
+    handler: api/handlers/users_handler.create_admin_user_handler
+    tags:
+      service: users-api
+    events:
+      - http:
+          path: users/create/admin
           method: post

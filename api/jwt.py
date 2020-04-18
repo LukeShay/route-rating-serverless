@@ -92,7 +92,7 @@ class Jwt:
         )
 
     def _generate_jwt(self, payload, secret):
-        return jwt.encode(payload, secret, self._algorithm)
+        return jwt.encode(payload, secret, self._algorithm).decode("utf8")
 
     def decode_jwt_token(self, token) -> Optional[JwtPayload]:
         return self._decode_token(token, self._jwt_secret)

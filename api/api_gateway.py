@@ -1,3 +1,5 @@
+import json
+
 from queries import Session
 
 
@@ -23,7 +25,8 @@ class ApiGatewayEvent:
         """
         :return: The body from the API Gateway event as a dict
         """
-        return self._event.get("body", {})
+        body = self._event.get("body", {})
+        return body if body else {}
 
     @property
     def database_session(self) -> Session:
@@ -94,10 +97,13 @@ class ApiGatewayEvent:
         if not headers:
             headers = {}
 
+        if not body:
+            body = {}
+
         headers.update({"Content-type": "application/json"})
 
         return {
             "statusCode": status_code,
-            "body": body,
+            "body": json.dumps(body),
             "headers": {**self._headers, **headers},
         }

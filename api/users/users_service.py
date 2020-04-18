@@ -75,11 +75,6 @@ class UsersService:
         self.log.debug("Encrypting password")
         return bcrypt.hashpw(password.encode("utf8"), SALT)
 
-    def create_basic_user(self, new_user) -> User:
-        new_user.authority = "BASIC"
-        new_user.role = "BASIC_ROLE"
-        return self.create_user(new_user)
-
     def create_user(self, new_user: User) -> User:
         new_user.id = str(uuid.uuid4())
         new_user.password = self.encrypt_password(new_user.password).decode("utf8")
