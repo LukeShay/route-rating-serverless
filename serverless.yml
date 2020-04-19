@@ -91,7 +91,7 @@ functions:
           method: post
 
   CreateAdminUser:
-    name: ${self:provider.stage}-${self:service}-create-user
+    name: ${self:provider.stage}-${self:service}-create-admin-user
     <<: *common-lambda-properties
     environment:
       <<: *common-lambda-env
