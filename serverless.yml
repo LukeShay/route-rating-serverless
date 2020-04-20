@@ -39,6 +39,9 @@ provider:
   memorySize: 512
   tags:
     service: route-rating-serverless
+  deploymentBucket:
+    name: route-rating-serverless-builds-${opt:stage, 'dev'}
+    blockPublicAccess: true
 
 functions:
   BasicAuth:
