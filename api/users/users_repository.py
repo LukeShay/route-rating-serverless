@@ -26,6 +26,15 @@ class UsersRepository:
             "SELECT * FROM users WHERE id=%(id)s LIMIT 1", {"id": user_id}
         )
 
+    def update(self, user):
+        self.session.query(
+            "UPDATE USERS "
+            "SET first_name=%(first_name)s, last_name=%(last_name)s, email=%(email)s, username=%(username)s, password=%(password)s, phone_number=%(phone_number)s, city=%(city)s, state=%(state)s, authority=%(authority)s, role=%(role)s, country=%(country) "
+            "WHERE id=%(id)s",
+            user.as_snake_dict(),
+        )
+        return self.get_user_by_id(user.id)
+
     def save(self, user):
         self.session.query(
             "INSERT INTO USERS ("

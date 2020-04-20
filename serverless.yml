@@ -30,19 +30,22 @@ x-common-lambda-properties: &common-lambda-properties
 
 provider:
   name: aws
-  runtime: python3.7
+  runtime: python3.8
   region: ${opt:region, 'us-east-2'}
   stage: ${opt:stage, 'dev'}
-  stackName: route-rating-serverless
+  stackName: route-rating-serverless-${opt:stage, 'dev'}
   versionFunctions: true
   role: arn:aws:iam::816188110262:role/LambdaRole
   memorySize: 512
   tags:
     service: route-rating-serverless
+  deploymentBucket:
+    name: route-rating-serverless-builds-${opt:stage, 'dev'}
+    blockPublicAccess: true
 
 functions:
   BasicAuth:
-    name: ${self:provider.stage}-${self:service}-basic-auth
+    name: ${self:service}-basic-auth-${self:provider.stage}
     <<: *common-lambda-properties
     environment:
       <<: *common-lambda-env
@@ -54,7 +57,7 @@ functions:
           path: auth/basic
           method: post
   AdminAuth:
-    name: ${self:provider.stage}-${self:service}-admin-auth
+    name: ${self:service}-admin-auth-${self:provider.stage}
     <<: *common-lambda-properties
     environment:
       <<: *common-lambda-env
@@ -66,7 +69,7 @@ functions:
           path: auth/admin
           method: post
   Login:
-    name: ${self:provider.stage}-${self:service}-login
+    name: ${self:service}-login-${self:provider.stage}
     <<: *common-lambda-properties
     environment:
       <<: *common-lambda-env
@@ -89,9 +92,8 @@ functions:
       - http:
           path: users/create
           method: post
-
   CreateAdminUser:
-    name: ${self:provider.stage}-${self:service}-create-admin-user
+    name: ${self:service}-create-admin-user-${self:provider.stage}
     <<: *common-lambda-properties
     environment:
       <<: *common-lambda-env
@@ -102,3 +104,15 @@ functions:
       - http:
           path: users/create/admin
           method: post
+  UpdateUser:
+    name: ${self:service}-update-user-${self:provider.stage}
+    <<: *common-lambda-properties
+    environment:
+      <<: *common-lambda-env
+    handler: api/handlers/users_handler.update_user_handler
+    tags:
+      service: users-api
+    events:
+      - http:
+          path: users
+          method: put

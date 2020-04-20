@@ -1,5 +1,6 @@
 import json
 import uuid
+from unittest import TestCase
 from unittest.mock import patch, Mock
 
 from api.users.user import User
@@ -234,3 +235,6 @@ class TestUsersHandler(TestBase):
         )
         self.assertEqual({}, response["body"])
         self.assertEqual(401, response["statusCode"])
+
+    def test_update_user_handler_valid_user(self):
+        self.assertTrue(True)
