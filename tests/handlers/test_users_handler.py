@@ -3,8 +3,13 @@ import uuid
 from unittest import TestCase
 from unittest.mock import patch, Mock
 
+from api.jwt import Jwt
 from api.users.user import User
-from api.handlers.users_handler import create_user_handler, create_admin_user_handler
+from api.handlers.users_handler import (
+    create_user_handler,
+    create_admin_user_handler,
+    update_user_handler,
+)
 from api.users import users_service
 from tests.offline_handler import OfflineHandler
 from tests.test_base import TestBase
@@ -16,7 +21,7 @@ from tests.utilities import (
 )
 
 
-class TestUsersHandler(TestBase):
+class TestCreateUsersHandlers(TestBase):
     def setUp(self) -> None:
         self.valid_new_user = User(
             first_name="first",
@@ -66,10 +71,6 @@ class TestUsersHandler(TestBase):
         self.admin_headers = {
             "Authorization": f"Bearer {generate_jwt(self.valid_jwt_payload)}"
         }
-
-        self.mock_validate_email = Mock()
-        self.mock_validate_email.return_value = True
-        users_service.validate_email = self.mock_validate_email
 
     @patch("api.users.users_repository.UsersRepository.save")
     @patch("api.users.users_repository.UsersRepository.get_user_by_email")
@@ -236,5 +237,56 @@ class TestUsersHandler(TestBase):
         self.assertEqual({}, response["body"])
         self.assertEqual(401, response["statusCode"])
 
-    def test_update_user_handler_valid_user(self):
-        self.assertTrue(True)
+
+class TestUpdateUserHandler(TestBase):
+    def setUp(self):
+        self.mock_validate_email = Mock()
+        self.mock_validate_email.return_value = True
+        users_service.validate_email = self.mock_validate_email
+
+        self.update_user_handler = OfflineHandler(update_user_handler)
+
+        self.basic_user = User(
+            user_id=str(uuid.uuid4()),
+            first_name="first",
+            last_name="last",
+            email="email@gmail.com",
+            password="LKJ)(*098ljk",
+            username="someusername",
+            city="Ames",
+            state="Iowa",
+            phone_number="9999999999",
+            authority="BASIC",
+            role="BASIC_ROLE",
+        )
+
+        self.basic_user_headers = {
+            "Authorization": f"Bearer {Jwt().generate_jwt_token(self.basic_user)}"
+        }
+
+        self.admin_user = User(
+            user_id=str(uuid.uuid4()),
+            first_name="first",
+            last_name="last",
+            email="email@gmail.com",
+            password="LKJ)(*098ljk",
+            username="someusername",
+            city="Ames",
+            state="Iowa",
+            phone_number="9999999999",
+            authority="ADMIN",
+            role="ADMIN_ROLE",
+        )
+
+        self.admin_user_headers = {
+            "Authorization": f"Bearer {Jwt().generate_jwt_token(self.admin_user)}"
+        }
+
+    def test_update_user_handler_valid_basic_user(self):
+        response = self.update_user_handler.handle_v2(
+            headers=self.basic_user_headers, body=self.basic_user.as_json_response()
+        )
+
+        self.assertEqual(200, response["statusCode"])
+        self.assertEqual(self.basic_user.as_json_response(), response["body"])
+        self.fail()
