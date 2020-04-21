@@ -4,17 +4,17 @@ import json
 class User:
     def __init__(
         self,
-        user_id,
-        username,
-        password,
-        city,
-        state,
-        first_name,
-        last_name,
-        email,
-        phone_number,
-        authority,
-        role,
+        user_id=None,
+        username=None,
+        password=None,
+        city=None,
+        state=None,
+        first_name=None,
+        last_name=None,
+        email=None,
+        phone_number=None,
+        authority=None,
+        role=None,
     ):
         self.id = user_id
         self.username = username
@@ -118,3 +118,23 @@ class User:
         body = self.as_camel_dict()
         body.pop("password")
         return body
+
+    def __add__(self, other):
+        if not isinstance(other, User):
+            raise TypeError
+
+        user = User()
+
+        user.first_name = self.first_name if self.first_name else other.first_name
+        user.last_name = self.last_name if self.last_name else other.last_name
+        user.id = self.id if self.id else other.id
+        user.username = self.username if self.username else other.username
+        user.password = self.password if self.password else other.password
+        user.email = self.email if self.email else other.email
+        user.city = self.city if self.city else other.city
+        user.state = self.state if self.state else other.state
+        user.phone_number = (
+            self.phone_number if self.phone_number else other.phone_number
+        )
+
+        return user

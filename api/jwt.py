@@ -69,13 +69,13 @@ class Jwt:
         self._refresh_secret = os.getenv("REFRESH_SECRET")
         self._algorithm = "HS256"
 
-    def generate_jwt_token(self, user):
+    def generate_jwt_token(self, user) -> str:
         return self._generate_jwt(
             JwtPayload.generate_as_dict(user.id, user.email, [user.authority], ONE_DAY),
             self._jwt_secret,
         )
 
-    def generate_refresh_token(self, user):
+    def generate_refresh_token(self, user) -> str:
         return self._generate_jwt(
             JwtPayload.generate_as_dict(
                 user.id, user.email, [user.authority], ONE_WEEK
@@ -83,7 +83,7 @@ class Jwt:
             self._refresh_secret,
         )
 
-    def extend_jwt_token(self, jwt_payload: JwtPayload):
+    def extend_jwt_token(self, jwt_payload: JwtPayload) -> str:
         return self._generate_jwt(
             JwtPayload.generate_as_dict(
                 jwt_payload.id, jwt_payload.email, jwt_payload.authorities, ONE_DAY
@@ -91,7 +91,7 @@ class Jwt:
             self._jwt_secret,
         )
 
-    def _generate_jwt(self, payload, secret):
+    def _generate_jwt(self, payload, secret) -> str:
         return jwt.encode(payload, secret, self._algorithm).decode("utf8")
 
     def decode_jwt_token(self, token) -> Optional[JwtPayload]:
