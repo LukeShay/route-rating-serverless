@@ -30,7 +30,7 @@ x-common-lambda-properties: &common-lambda-properties
 
 provider:
   name: aws
-  runtime: python3.8
+  runtime: python3.7
   region: ${opt:region, 'us-east-2'}
   stage: ${opt:stage, 'dev'}
   stackName: route-rating-serverless-${opt:stage, 'dev'}

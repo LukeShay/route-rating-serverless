@@ -1,7 +1,7 @@
+from unittest.mock import Mock
+
 import jwt
 import os
-
-from api.jwt import Jwt
 
 
 class ApiGatewayEvent:
@@ -36,3 +36,12 @@ class DatabaseResult:
 
     def free(self):
         return
+
+
+class MockUsersRepository:
+    def __init__(self):
+        self.get_user_by_email = Mock(return_value=DatabaseResult(None))
+        self.get_user_by_username = Mock(return_value=DatabaseResult(None))
+        self.get_user_by_id = Mock(return_value=DatabaseResult(None))
+        self.update = Mock(return_value=DatabaseResult(None))
+        self.save = Mock(return_value=DatabaseResult(None))

@@ -1,5 +1,7 @@
 import json
 
+from tests.utilities import ApiGatewayEvent
+
 
 class OfflineHandler:
     def __init__(self, handler):
@@ -11,3 +13,6 @@ class OfflineHandler:
         response["body"] = json.loads(response["body"])
 
         return response
+
+    def handle_v2(self, headers, body):
+        return self.handle(ApiGatewayEvent(headers, body).as_dict())

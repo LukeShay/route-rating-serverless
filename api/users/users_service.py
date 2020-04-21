@@ -12,7 +12,7 @@ SALT = bcrypt.gensalt(rounds=10, prefix=b"2a")
 
 
 class UsersService:
-    def __init__(self, database_session):
+    def __init__(self, database_session=None):
         self.log = logging.getLogger(self.__class__.__name__)
         self.log.debug("Initializing UsersService")
         self.users_repository = UsersRepository(database_session)
@@ -48,46 +48,40 @@ class UsersService:
         self.log.debug(f"Getting user by username:\n{request_user.as_camel_dict()}")
 
         result = self.users_repository.get_user_by_username(request_user.username)
-
         user = User.from_snake_dict(result.as_dict())
-
         result.free()
+
         return user if user.id and user.id != "" else None
 
     def get_user_by_email(self, request_user: User) -> User or None:
         self.log.debug(f"Getting user by email:\n{request_user.as_camel_dict()}")
 
         result = self.users_repository.get_user_by_email(request_user.email)
-
         user = User.from_snake_dict(result.as_dict())
-
-        self.log.debug(f"User from database:\n{user.as_camel_dict()}")
-
         result.free()
 
         return user if user.id and user.id != "" else None
 
-    def check_passwords(self, password: str, hashed_password: str) -> bool:
-        self.log.debug("Comparing passwords")
+    @staticmethod
+    def check_passwords(password: str, hashed_password: str) -> bool:
         return bcrypt.checkpw(password.encode("utf8"), hashed_password.encode("utf8"))
 
-    def encrypt_password(self, password: str) -> bytes:
-        self.log.debug("Encrypting password")
-        return bcrypt.hashpw(password.encode("utf8"), SALT)
+    @staticmethod
+    def encrypt_password(password: str) -> str:
+        return bcrypt.hashpw(password.encode("utf8"), SALT).decode("utf8")
 
     def create_user(self, new_user: User) -> User:
         new_user.id = str(uuid.uuid4())
-        new_user.password = self.encrypt_password(new_user.password).decode("utf8")
+        new_user.password = self.encrypt_password(new_user.password)
 
         result = self.users_repository.save(new_user)
-
         user = User.from_snake_dict(result.as_dict())
-
         result.free()
 
         return user
 
-    def valid_email(self, user: User) -> bool:
+    @staticmethod
+    def valid_email(user: User) -> bool:
         return RegexUtils.valid_email(user.email) and validate_email(
             user.email, verify=True
         )
@@ -114,3 +108,21 @@ class UsersService:
             and RegexUtils.uppercase(user.password)
             and RegexUtils.lowercase(user.password)
         )
+
+    def get_user_by_id(self, user) -> User or None:
+        self.log.debug(f"Getting user by id:\n{user.as_camel_dict()}")
+
+        result = self.users_repository.get_user_by_id(user.id)
+        user = User.from_snake_dict(result.as_dict())
+        result.free()
+
+        return user if user.id and user.id != "" else None
+
+    def update_user(self, user) -> User or None:
+        self.log.debug(f"Updating user:\n{user.as_camel_dict()}")
+
+        result = self.users_repository.update(user.as_snake_dict())
+        user = User.from_snake_dict(result.as_dict())
+        result.free()
+
+        return user if user.id and user.id != "" else None
