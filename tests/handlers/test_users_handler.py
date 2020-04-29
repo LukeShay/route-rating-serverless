@@ -1,7 +1,7 @@
 import uuid
 from unittest.mock import patch, Mock
 
-from api.jwt import Jwt
+from api.utils.jwt import Jwt
 from api.users import users_service
 from api.users.user import User
 from api.handlers.users_handler import (

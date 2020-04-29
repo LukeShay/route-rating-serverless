@@ -3,9 +3,9 @@ import os
 import traceback
 import sys
 
-from api.auth import Auth
+from api.utils.auth import Auth
 from api.utils.db_utils import create_database_session
-from api.api_gateway import ApiGatewayEvent
+from api.utils.api_gateway import ApiGatewayEvent
 
 
 def validate_kwargs(*args, **kwargs):

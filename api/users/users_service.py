@@ -1,11 +1,11 @@
-from api.users.users_repository import UsersRepository
 from api.users.user import User
-import logging
-import bcrypt
-from api.auth import Jwt
-import uuid
+from api.users.users_repository import UsersRepository
+from api.utils.auth import Jwt
 from api.utils.regex import RegexUtils
 from validate_email import validate_email
+import bcrypt
+import logging
+import uuid
 
 
 SALT = bcrypt.gensalt(rounds=10, prefix=b"2a")
@@ -14,7 +14,7 @@ SALT = bcrypt.gensalt(rounds=10, prefix=b"2a")
 class UsersService:
     def __init__(self, database_session=None):
         self.log = logging.getLogger(self.__class__.__name__)
-        self.log.debug("Initializing UsersService")
+        self.log.debug("Initializing")
         self.users_repository = UsersRepository(database_session)
         self.jwt = Jwt()
 

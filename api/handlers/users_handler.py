@@ -1,6 +1,6 @@
 import logging
 
-from api.api_gateway import ApiGatewayEvent
+from api.utils.api_gateway import ApiGatewayEvent
 from api.users.user import User
 from api.users.users_service import UsersService
 from api.utils.handler_utils import handler, admin_handler, basic_handler

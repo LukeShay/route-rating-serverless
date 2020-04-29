@@ -11,7 +11,7 @@ help:
 
 ## cleans all temp files
 clean:
-	@rm -rf .pytest_cache test_output .coverage rli.egg-info .pytest_cache .scannerwork .serverless route-rating.log || exit 0
+	@rm -rf .pytest_cache test_output .coverage rli.egg-info .pytest_cache .scannerwork .serverless route-rating.log && find . -name "__pycache__" | xargs rm -rf
 
 ## lints the python files
 lint: clean

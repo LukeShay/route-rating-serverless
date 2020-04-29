@@ -1,5 +1,5 @@
 from unittest.mock import patch
-from api.auth import Auth
+from api.utils.auth import Auth
 from api.handlers.auth_handler import (
     basic_auth_handler,
     admin_auth_handler,
