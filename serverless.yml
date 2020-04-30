@@ -3,116 +3,119 @@ service: route-rating-serverless
 frameworkVersion: ">=1.2.0 <2.0.0"
 
 plugins:
-  - serverless-python-requirements
-  - serverless-offline
+    - serverless-python-requirements
+    - serverless-offline
 
 custom:
-  pythonRequirements:
-    layer: true
+    pythonRequirements:
+        layer: true
 
 package:
-  exclude:
-    - ./**
-  include:
-    - ./api/**
+    exclude:
+        - ./**
+    include:
+        - ./api/**
 
 x-common-lambda-env: &common-lambda-env
-  JWT_SECRET: ${env:JWT_SECRET}
-  REFRESH_SECRET: ${env:REFRESH_SECRET}
-  DATABASE_URL: ${env:DATABASE_URL}
-  DATABASE_USERNAME: ${env:DATABASE_USERNAME}
-  DATABASE_PASSWORD: ${env:DATABASE_PASSWORD}
-  LOG: TRUE
+    JWT_SECRET: ${env:JWT_SECRET}
+    REFRESH_SECRET: ${env:REFRESH_SECRET}
+    DATABASE_URL: ${env:DATABASE_URL}
+    DATABASE_USERNAME: ${env:DATABASE_USERNAME}
+    DATABASE_PASSWORD: ${env:DATABASE_PASSWORD}
+    LOG: TRUE
 
 x-common-lambda-properties: &common-lambda-properties
-  layers:
-    - { Ref: PythonRequirementsLambdaLayer }
+    layers:
+        - { Ref: PythonRequirementsLambdaLayer }
 
 provider:
-  name: aws
-  runtime: python3.7
-  region: ${opt:region, 'us-east-2'}
-  stage: ${opt:stage, 'dev'}
-  stackName: route-rating-serverless-${opt:stage, 'dev'}
-  versionFunctions: true
-  role: arn:aws:iam::816188110262:role/LambdaRole
-  memorySize: 512
-  tags:
-    service: route-rating-serverless
-  deploymentBucket:
-    name: route-rating-serverless-builds-${opt:stage, 'dev'}
-    blockPublicAccess: true
+    name: aws
+    runtime: python3.7
+    region: ${opt:region, 'us-east-2'}
+    stage: ${opt:stage, 'dev'}
+    stackName: route-rating-serverless-${opt:stage, 'dev'}
+    versionFunctions: true
+    role: arn:aws:iam::816188110262:role/LambdaRole
+    memorySize: 512
+    tags:
+        service: route-rating-serverless
+    deploymentBucket:
+        name: route-rating-serverless-builds-${opt:stage, 'dev'}
+        blockPublicAccess: true
 
 functions:
-  BasicAuth:
-    name: ${self:service}-basic-auth-${self:provider.stage}
-    <<: *common-lambda-properties
-    environment:
-      <<: *common-lambda-env
-    handler: api/handlers/auth_handler.basic_auth_handler
-    tags:
-      service: auth-api
-    events:
-      - http:
-          path: auth/basic
-          method: post
-  AdminAuth:
-    name: ${self:service}-admin-auth-${self:provider.stage}
-    <<: *common-lambda-properties
-    environment:
-      <<: *common-lambda-env
-    handler: api/handlers/auth_handler.admin_auth_handler
-    tags:
-      service: auth-api
-    events:
-      - http:
-          path: auth/admin
-          method: post
-  Login:
-    name: ${self:service}-login-${self:provider.stage}
-    <<: *common-lambda-properties
-    environment:
-      <<: *common-lambda-env
-    handler: api/handlers/auth_handler.login_handler
-    tags:
-      service: login-api
-    events:
-      - http:
-          path: auth/login
-          method: post
-  CreateUser:
-    name: ${self:service}-create-user-${self:provider.stage}
-    <<: *common-lambda-properties
-    environment:
-      <<: *common-lambda-env
-    handler: api/handlers/users_handler.create_user_handler
-    tags:
-      service: users-api
-    events:
-      - http:
-          path: users/create
-          method: post
-  CreateAdminUser:
-    name: ${self:service}-create-admin-user-${self:provider.stage}
-    <<: *common-lambda-properties
-    environment:
-      <<: *common-lambda-env
-    handler: api/handlers/users_handler.create_admin_user_handler
-    tags:
-      service: users-api
-    events:
-      - http:
-          path: users/create/admin
-          method: post
-  UpdateUser:
-    name: ${self:service}-update-user-${self:provider.stage}
-    <<: *common-lambda-properties
-    environment:
-      <<: *common-lambda-env
-    handler: api/handlers/users_handler.update_user_handler
-    tags:
-      service: users-api
-    events:
-      - http:
-          path: users
-          method: put
+    # Auth Functions
+    BasicAuth:
+        name: ${self:service}-basic-auth-${self:provider.stage}
+        <<: *common-lambda-properties
+        environment:
+            <<: *common-lambda-env
+        handler: api/handlers/auth_handler.basic_auth_handler
+        tags:
+            service: auth-api
+        events:
+            - http:
+                  path: auth/basic
+                  method: post
+    AdminAuth:
+        name: ${self:service}-admin-auth-${self:provider.stage}
+        <<: *common-lambda-properties
+        environment:
+            <<: *common-lambda-env
+        handler: api/handlers/auth_handler.admin_auth_handler
+        tags:
+            service: auth-api
+        events:
+            - http:
+                  path: auth/admin
+                  method: post
+    Login:
+        name: ${self:service}-login-${self:provider.stage}
+        <<: *common-lambda-properties
+        environment:
+            <<: *common-lambda-env
+        handler: api/handlers/auth_handler.login_handler
+        tags:
+            service: login-api
+        events:
+            - http:
+                  path: auth/login
+                  method: post
+
+    # Users Functions
+    CreateUser:
+        name: ${self:service}-create-user-${self:provider.stage}
+        <<: *common-lambda-properties
+        environment:
+            <<: *common-lambda-env
+        handler: api/handlers/users_handler.create_user_handler
+        tags:
+            service: users-api
+        events:
+            - http:
+                  path: users/create
+                  method: post
+    CreateAdminUser:
+        name: ${self:service}-create-admin-user-${self:provider.stage}
+        <<: *common-lambda-properties
+        environment:
+            <<: *common-lambda-env
+        handler: api/handlers/users_handler.create_admin_user_handler
+        tags:
+            service: users-api
+        events:
+            - http:
+                  path: users/create/admin
+                  method: post
+    UpdateUser:
+        name: ${self:service}-update-user-${self:provider.stage}
+        <<: *common-lambda-properties
+        environment:
+            <<: *common-lambda-env
+        handler: api/handlers/users_handler.update_user_handler
+        tags:
+            service: users-api
+        events:
+            - http:
+                  path: users
+                  method: put

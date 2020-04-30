@@ -63,7 +63,7 @@ class User:
         )
 
     @classmethod
-    def from_snake_dict(cls, body) -> User:
+    def from_snake_dict(cls, body):
         if isinstance(body, str):
             body = json.loads(body)
 
