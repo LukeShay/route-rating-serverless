@@ -11,19 +11,19 @@ help:
 
 ## cleans all temp files
 clean:
-	@rm -rf .pytest_cache test_output .coverage rli.egg-info .pytest_cache .scannerwork .serverless route-rating.log && find . -name "__pycache__" | xargs rm -rf
+	@rm -rf .pytest_cache test_output .coverage rli.egg-info .pytest_cache .scannerwork .serverless route-rating.log .mypy_cache && find . -name "__pycache__" | xargs rm -rf
 
 ## lints the python files
 lint: clean
-	@black --check api/ tests/
+	@python -m black --check api/ tests/ && python -m mypy api --ignore-missing-imports --no-warn-no-return --warn-unreachable
 
 ## formats the python files
 format: clean
-	@black api/ tests/
+	@python -m black api/ tests/
 
 ## runs all unit tests
 ut: clean
-	@pytest --junitxml=./test_output/test-report.xml --cov=api --cov-report=xml:test_output/coverage.xml --cov-report=html:test_output/coverage tests
+	@python -m pytest --junitxml=./test_output/test-report.xml --cov=api --cov-report=xml:test_output/coverage.xml --cov-report=html:test_output/coverage tests
 
 ## runs the integration tests using yarn serverless local
 it: clean

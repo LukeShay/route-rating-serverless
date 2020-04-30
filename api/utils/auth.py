@@ -63,9 +63,7 @@ class Auth:
 
     def is_admin(self) -> bool:
         payload = self.get_jwt_payload()
-        return (
-            ADMIN_AUTHORITY in payload.authorities if payload else False
-        )
+        return ADMIN_AUTHORITY in payload.authorities if payload else False
 
     def get_jwt_payload(self) -> Optional[JwtPayload]:
         return self.jwt.decode_jwt_token(self.auth_header)
