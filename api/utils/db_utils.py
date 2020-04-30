@@ -1,13 +1,14 @@
 from queries import uri, Session
-import os
+from typing import Optional
 import logging
+import os
 
 
 PORT = 5432
 DATABASE = "routerating"
 
 
-def create_database_session() -> Session or None:
+def create_database_session() -> Optional[Session]:
     logging.debug("Creating database session.")
 
     username = os.getenv("DATABASE_USERNAME")

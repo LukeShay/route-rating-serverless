@@ -3,6 +3,7 @@ from api.users.users_repository import UsersRepository
 from api.utils.auth import Jwt
 from api.utils.regex import RegexUtils
 from validate_email import validate_email
+from typing import Optional, Dict, Tuple
 import bcrypt
 import logging
 import uuid
@@ -18,11 +19,11 @@ class UsersService:
         self.users_repository = UsersRepository(database_session)
         self.jwt = Jwt()
 
-    def login(self, user) -> User or None:
+    def login(self, user) -> Tuple[Optional[User], Optional[Dict]]:
         """
         Gets the user from the database an validates the passwords match.
         :param user: The user object. Must have username or email and password
-        :return: The user or none
+        :return: The Tuple[Optional[User], Optional[Dict]]
         """
         self.log.debug(f"Attempting login:\n{user.as_camel_dict()}")
 
@@ -44,7 +45,7 @@ class UsersService:
             },
         )
 
-    def get_user_by_username(self, request_user: User) -> User or None:
+    def get_user_by_username(self, request_user: User) -> Optional[User]:
         self.log.debug(f"Getting user by username:\n{request_user.as_camel_dict()}")
 
         result = self.users_repository.get_user_by_username(request_user.username)
@@ -53,7 +54,7 @@ class UsersService:
 
         return user if user.id and user.id != "" else None
 
-    def get_user_by_email(self, request_user: User) -> User or None:
+    def get_user_by_email(self, request_user: User) -> Optional[User]:
         self.log.debug(f"Getting user by email:\n{request_user.as_camel_dict()}")
 
         result = self.users_repository.get_user_by_email(request_user.email)
@@ -109,7 +110,7 @@ class UsersService:
             and RegexUtils.lowercase(user.password)
         )
 
-    def get_user_by_id(self, user) -> User or None:
+    def get_user_by_id(self, user) -> Optional[User]:
         self.log.debug(f"Getting user by id:\n{user.as_camel_dict()}")
 
         result = self.users_repository.get_user_by_id(user.id)
@@ -118,7 +119,7 @@ class UsersService:
 
         return user if user.id and user.id != "" else None
 
-    def update_user(self, user) -> User or None:
+    def update_user(self, user) -> Optional[User]:
         self.log.debug(f"Updating user:\n{user.as_camel_dict()}")
 
         result = self.users_repository.update(user.as_snake_dict())

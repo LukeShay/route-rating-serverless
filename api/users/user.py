@@ -28,10 +28,10 @@ class User:
         self.authority = authority
         self.role = role
 
-    def all_fields_present(self):
+    def all_fields_present(self) -> bool:
         return self.id and self.new_user_fields_present()
 
-    def new_user_fields_present(self):
+    def new_user_fields_present(self) -> bool:
         return (
             self.username
             and self.password
@@ -63,7 +63,7 @@ class User:
         )
 
     @classmethod
-    def from_snake_dict(cls, body):
+    def from_snake_dict(cls, body) -> User:
         if isinstance(body, str):
             body = json.loads(body)
 
@@ -81,7 +81,7 @@ class User:
             body.get("role", None),
         )
 
-    def as_camel_dict(self):
+    def as_camel_dict(self) -> dict:
         return {
             "id": self.id,
             "username": self.username,
@@ -96,7 +96,7 @@ class User:
             "role": self.role,
         }
 
-    def as_snake_dict(self):
+    def as_snake_dict(self) -> dict:
         return {
             "id": self.id,
             "username": self.username,
@@ -111,7 +111,7 @@ class User:
             "role": self.role,
         }
 
-    def as_dict(self):
+    def as_dict(self) -> dict:
         return self.as_camel_dict()
 
     def as_json_response(self):

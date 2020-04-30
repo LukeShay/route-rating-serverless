@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Tuple
 
 from munch import Munch
 import logging
@@ -31,7 +31,7 @@ class Auth:
                 else self.event.headers.Refresh
             )
 
-    def validate_jwt(self) -> (bool, Optional[str], Optional[str]):
+    def validate_jwt(self) -> Tuple[bool, Optional[str], Optional[str]]:
         jwt_payload = self.get_jwt_payload()
 
         if not jwt_payload:
@@ -62,7 +62,10 @@ class Auth:
         return True, self.auth_header, self.refresh_header
 
     def is_admin(self) -> bool:
-        return ADMIN_AUTHORITY in self.get_jwt_payload().authorities
+        payload = self.get_jwt_payload()
+        return (
+            ADMIN_AUTHORITY in payload.authorities if payload else False
+        )
 
     def get_jwt_payload(self) -> Optional[JwtPayload]:
         return self.jwt.decode_jwt_token(self.auth_header)

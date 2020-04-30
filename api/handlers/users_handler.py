@@ -96,6 +96,10 @@ def update_user_handler(event: ApiGatewayEvent) -> dict:
     users_service = UsersService(event.database_session)
 
     current_user = users_service.get_user_by_id(updated_user)
+
+    if not current_user:
+        return event.bad_request_response({"message": "User does not exist."})
+
     updated_user += current_user
     response = {}
 
@@ -123,4 +127,10 @@ def update_user_handler(event: ApiGatewayEvent) -> dict:
     if current_user.password != updated_user.password:
         updated_user.password = users_service.encrypt_password(updated_user.password)
 
-    return event.ok_response(users_service.update_user(updated_user).as_json_response())
+    updated_user = users_service.update_user(updated_user)
+
+    return (
+        event.ok_response(updated_user.as_json_response())
+        if updated_user
+        else event.internal_server_error_response()
+    )
