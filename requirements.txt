@@ -5,6 +5,6 @@ munch
 Py3DNS
 PyJWT
 psycopg2
-psycopg2-binary==2.8.3
+psycopg2-binary==2.8.5
 queries
 validate_email
