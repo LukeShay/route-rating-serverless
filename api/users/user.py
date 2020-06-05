@@ -81,6 +81,20 @@ class User:
             body.get("role", None),
         )
 
+    def get_expression_attribute_values(self):
+        return {
+            ":username": self.username,
+            ":password": self.password,
+            ":city": self.city,
+            ":state": self.state,
+            ":firstName": self.first_name,
+            ":lastName": self.last_name,
+            ":email": self.email,
+            ":phoneNumber": self.phone_number,
+            ":authority": self.authority,
+            ":role": self.role,
+        }
+
     def as_camel_dict(self) -> dict:
         return {
             "id": self.id,

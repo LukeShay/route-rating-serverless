@@ -1,6 +1,5 @@
 import json
 from typing import Optional, Dict
-from queries import Session
 
 
 class ApiGatewayEvent:
@@ -29,7 +28,7 @@ class ApiGatewayEvent:
         return body if body else {}
 
     @property
-    def database_session(self) -> Session:
+    def database_session(self) -> any:
         """
         :return: The queries database session
         """

@@ -1,10 +1,7 @@
 bcrypt
-black
+boto3
 mock
 munch
 Py3DNS
 PyJWT
-psycopg2
-psycopg2-binary==2.8.3
-queries
 validate_email

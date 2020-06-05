@@ -16,21 +16,13 @@ package:
     include:
         - ./api/**
 
-x-common-lambda-env: &common-lambda-env
-    JWT_SECRET: ${env:JWT_SECRET}
-    REFRESH_SECRET: ${env:REFRESH_SECRET}
-    DATABASE_URL: ${env:DATABASE_URL}
-    DATABASE_USERNAME: ${env:DATABASE_USERNAME}
-    DATABASE_PASSWORD: ${env:DATABASE_PASSWORD}
-    LOG: TRUE
-
 x-common-lambda-properties: &common-lambda-properties
     layers:
         - { Ref: PythonRequirementsLambdaLayer }
 
 provider:
     name: aws
-    runtime: python3.7
+    runtime: python3.8
     region: ${opt:region, 'us-east-2'}
     stage: ${opt:stage, 'dev'}
     stackName: route-rating-serverless-${opt:stage, 'dev'}
@@ -42,14 +34,27 @@ provider:
     deploymentBucket:
         name: route-rating-serverless-builds-${opt:stage, 'dev'}
         blockPublicAccess: true
+    environment:
+        DYNAMODB_TABLE: ${self:service}-${opt:stage, self:provider.stage}
+        JWT_SECRET: ${env:JWT_SECRET}
+        REFRESH_SECRET: ${env:REFRESH_SECRET}
+        LOG: TRUE
+    iamRoleStatements:
+        - Effect: Allow
+          Action:
+              - dynamodb:Query
+              - dynamodb:Scan
+              - dynamodb:GetItem
+              - dynamodb:PutItem
+              - dynamodb:UpdateItem
+              - dynamodb:DeleteItem
+          Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.DYNAMODB_TABLE}"
 
 functions:
     # Auth Functions
     BasicAuth:
         name: ${self:service}-basic-auth-${self:provider.stage}
         <<: *common-lambda-properties
-        environment:
-            <<: *common-lambda-env
         handler: api/handlers/auth_handler.basic_auth_handler
         tags:
             service: auth-api
@@ -60,8 +65,6 @@ functions:
     AdminAuth:
         name: ${self:service}-admin-auth-${self:provider.stage}
         <<: *common-lambda-properties
-        environment:
-            <<: *common-lambda-env
         handler: api/handlers/auth_handler.admin_auth_handler
         tags:
             service: auth-api
@@ -72,8 +75,6 @@ functions:
     Login:
         name: ${self:service}-login-${self:provider.stage}
         <<: *common-lambda-properties
-        environment:
-            <<: *common-lambda-env
         handler: api/handlers/auth_handler.login_handler
         tags:
             service: login-api
@@ -86,8 +87,6 @@ functions:
     CreateUser:
         name: ${self:service}-create-user-${self:provider.stage}
         <<: *common-lambda-properties
-        environment:
-            <<: *common-lambda-env
         handler: api/handlers/users_handler.create_user_handler
         tags:
             service: users-api
@@ -98,8 +97,6 @@ functions:
     CreateAdminUser:
         name: ${self:service}-create-admin-user-${self:provider.stage}
         <<: *common-lambda-properties
-        environment:
-            <<: *common-lambda-env
         handler: api/handlers/users_handler.create_admin_user_handler
         tags:
             service: users-api
@@ -110,8 +107,6 @@ functions:
     UpdateUser:
         name: ${self:service}-update-user-${self:provider.stage}
         <<: *common-lambda-properties
-        environment:
-            <<: *common-lambda-env
         handler: api/handlers/users_handler.update_user_handler
         tags:
             service: users-api
@@ -119,3 +114,22 @@ functions:
             - http:
                   path: users
                   method: put
+
+resources:
+    Resources:
+        TodosDynamoDbTable:
+            Type: 'AWS::DynamoDB::Table'
+            DeletionPolicy: Retain
+            Properties:
+                AttributeDefinitions:
+                    -
+                        AttributeName: id
+                        AttributeType: S
+                KeySchema:
+                    -
+                        AttributeName: id
+                        KeyType: HASH
+                ProvisionedThroughput:
+                    ReadCapacityUnits: 1
+                    WriteCapacityUnits: 1
+                TableName: ${self:provider.environment.DYNAMODB_TABLE}
