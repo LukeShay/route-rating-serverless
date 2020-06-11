@@ -27,15 +27,19 @@ def validate_user_fields(users_service: UsersService, user: User) -> dict:
     return response
 
 
-def create_user_helper(new_user: User) -> dict:
+def create_user_helper(event: ApiGatewayEvent, new_user: User) -> dict:
     users_service = UsersService()
 
-    response = {}
 
     if not new_user.new_user_fields_present():
-        return {"message": "A field is missing."}
+        return event.bad_request_response({"message": "A field is missing."})
 
     new_user.email = new_user.email.lower()
+
+    response = validate_user_fields(users_service, new_user)
+
+    if len(response.keys()) > 0:
+        return event.bad_request_response(response)
 
     if users_service.get_user_by_email(new_user):
         response["email"] = "Email is taken."
@@ -43,10 +47,19 @@ def create_user_helper(new_user: User) -> dict:
     if users_service.get_user_by_username(new_user):
         response["username"] = "Username is taken."
 
+    if len(response.keys()) > 0:
+        return event.bad_request_response(response)
+
+    new_user.email = new_user.email.lower()
+
+    saved_user = UsersService().create_user(new_user)
+
     return (
-        response
-        if len(response.keys()) > 0
-        else validate_user_fields(users_service, new_user)
+        event.ok_response(saved_user.as_json_response())
+        if saved_user
+        else event.internal_server_error_response(
+            {"message": "There was an error saving your user."}
+        )
     )
 
 
@@ -56,14 +69,7 @@ def create_user_handler(event: ApiGatewayEvent) -> dict:
     new_user.authority = "BASIC"
     new_user.role = "BASIC_ROLE"
 
-    response = create_user_helper(new_user)
-
-    if len(response.keys()) > 0:
-        return event.bad_request_response(response)
-
-    new_user.email = new_user.email.lower()
-
-    return event.ok_response(UsersService().create_user(new_user).as_json_response())
+    return create_user_helper(event, new_user)
 
 
 @admin_handler()
@@ -72,14 +78,7 @@ def create_admin_user_handler(event: ApiGatewayEvent) -> dict:
     new_user.authority = "ADMIN"
     new_user.role = "ADMIN_ROLE"
 
-    response = create_user_helper(new_user)
-
-    if len(response.keys()) > 0:
-        return event.bad_request_response(response)
-
-    new_user.email = new_user.email.lower()
-
-    return event.ok_response(UsersService().create_user(new_user).as_json_response())
+    return create_user_helper(event, new_user)
 
 
 @basic_handler()
