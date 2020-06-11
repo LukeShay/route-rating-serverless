@@ -2,48 +2,36 @@ import logging
 import os
 import traceback
 import sys
+import json
 
 from api.utils.auth import Auth
-from api.utils.db_utils import create_database_session
 from api.utils.api_gateway import ApiGatewayEvent
 
 
-def validate_kwargs(*args, **kwargs):
-    logging.debug(args)
+def validate_kwargs(*args):
+    logging.debug("ARGS: " + str(args))
     if len(args[0][0]) != 2:
         raise InvalidRequestException
 
-    return args[0][0]
+    return args[0][0], None
 
 
-def get_event_params(database, *args, **kwargs):
-    event, context = validate_kwargs(args, kwargs)
-
-    database_session = create_database_session() if database else None
-
-    return event, context, database_session
-
-
-def validate_jwt(
-    function, event, context, database_session, admin_auth, *args, **kwargs
-):
-    api_event = ApiGatewayEvent(event, context, database_session, None, None, None)
+def validate_jwt(function, event, context, admin_auth):
     try:
-        auth = Auth(args[0][0])
+        auth = Auth(event)
 
         valid, jwt_token, refresh_token = auth.validate_jwt()
 
         if not valid:
-            return api_event.forbidden_response()
+            return ApiGatewayEvent(event, context).forbidden_response()
 
         if admin_auth and not auth.is_admin():
-            return api_event.unauthorized_response()
+            return ApiGatewayEvent(event, context).unauthorized_response()
 
         return function(
             ApiGatewayEvent(
                 event,
                 context,
-                database_session,
                 auth.get_jwt_payload().id,
                 auth.get_jwt_payload().authorities,
                 headers={"Authorization": jwt_token, "Refresh": refresh_token},
@@ -54,43 +42,40 @@ def validate_jwt(
         logging.error(traceback.format_exc())
         logging.exception(e)
 
-        return api_event.forbidden_response()
+        return ApiGatewayEvent(event, context).forbidden_response()
 
 
-def handler(database):
+def handler():
     def decorator(function):
         def wrapper(*args, **kwargs):
             setup_logger()
-            event, context, database_session = get_event_params(database, args, kwargs)
-            return function(ApiGatewayEvent(event, context, database_session))
+            event, context = validate_kwargs(args, kwargs)
+            return function(ApiGatewayEvent(event, context))
 
         return wrapper
 
     return decorator
 
 
-def admin_handler(database):
+def admin_handler():
     def decorator(function):
         def wrapper(*args, **kwargs):
             setup_logger()
-            event, context, database_session = get_event_params(database, args, kwargs)
-            return validate_jwt(
-                function, event, context, database_session, True, args, kwargs
-            )
+            event, context = validate_kwargs(args)
+            return validate_jwt(function, event, context, True)
 
         return wrapper
 
     return decorator
 
 
-def basic_handler(database):
+def basic_handler():
     def decorator(function):
         def wrapper(*args, **kwargs):
             setup_logger()
-            event, context, database_session = get_event_params(database, args, kwargs)
-            return validate_jwt(
-                function, event, context, database_session, False, args, kwargs
-            )
+            event, context = validate_kwargs(args)
+            print("YEET: " + str(event))
+            return validate_jwt(function, event, context, False)
 
         return wrapper
 

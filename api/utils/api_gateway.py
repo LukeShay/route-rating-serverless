@@ -4,17 +4,10 @@ from typing import Optional, Dict
 
 class ApiGatewayEvent:
     def __init__(
-        self,
-        event,
-        context,
-        database_session=None,
-        user_id=None,
-        user_authority=None,
-        headers=None,
+        self, event, context, user_id=None, user_authority=None, headers=None,
     ):
         self._event = event
         self._context = context
-        self._database_session = database_session
         self._user_id = user_id
         self._user_authority = user_authority
         self._headers = headers if headers else {}
@@ -24,15 +17,7 @@ class ApiGatewayEvent:
         """
         :return: The body from the API Gateway event as a dict
         """
-        body = self._event.get("body", {})
-        return body if body else {}
-
-    @property
-    def database_session(self) -> any:
-        """
-        :return: The queries database session
-        """
-        return self._database_session
+        return self._event.get("body", {})
 
     @property
     def user_id(self) -> Optional[str]:

@@ -27,8 +27,8 @@ def validate_user_fields(users_service: UsersService, user: User) -> dict:
     return response
 
 
-def create_user_helper(event: ApiGatewayEvent, new_user: User) -> dict:
-    users_service = UsersService(event.database_session)
+def create_user_helper(new_user: User) -> dict:
+    users_service = UsersService()
 
     response = {}
 
@@ -50,50 +50,46 @@ def create_user_helper(event: ApiGatewayEvent, new_user: User) -> dict:
     )
 
 
-@handler(database=True)
+@handler()
 def create_user_handler(event: ApiGatewayEvent) -> dict:
     new_user = User.from_camel_dict(event.body)
     new_user.authority = "BASIC"
     new_user.role = "BASIC_ROLE"
 
-    response = create_user_helper(event, new_user)
+    response = create_user_helper(new_user)
 
     if len(response.keys()) > 0:
         return event.bad_request_response(response)
 
     new_user.email = new_user.email.lower()
 
-    return event.ok_response(
-        UsersService(event.database_session).create_user(new_user).as_json_response()
-    )
+    return event.ok_response(UsersService().create_user(new_user).as_json_response())
 
 
-@admin_handler(database=True)
+@admin_handler()
 def create_admin_user_handler(event: ApiGatewayEvent) -> dict:
     new_user = User.from_camel_dict(event.body)
     new_user.authority = "ADMIN"
     new_user.role = "ADMIN_ROLE"
 
-    response = create_user_helper(event, new_user)
+    response = create_user_helper(new_user)
 
     if len(response.keys()) > 0:
         return event.bad_request_response(response)
 
     new_user.email = new_user.email.lower()
 
-    return event.ok_response(
-        UsersService(event.database_session).create_user(new_user).as_json_response()
-    )
+    return event.ok_response(UsersService().create_user(new_user).as_json_response())
 
 
-@basic_handler(database=True)
+@basic_handler()
 def update_user_handler(event: ApiGatewayEvent) -> dict:
     updated_user = User.from_camel_dict(event.body)
 
     if event.user_id != updated_user.id:
         return event.unauthorized_response()
 
-    users_service = UsersService(event.database_session)
+    users_service = UsersService()
 
     current_user = users_service.get_user_by_id(updated_user)
 

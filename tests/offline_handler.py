@@ -14,5 +14,5 @@ class OfflineHandler:
 
         return response
 
-    def handle_v2(self, headers, body):
+    def handle_v2(self, headers=None, body=None):
         return self.handle(ApiGatewayEvent(headers, body).as_dict())

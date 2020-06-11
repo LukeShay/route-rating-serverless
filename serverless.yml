@@ -5,6 +5,7 @@ frameworkVersion: ">=1.2.0 <2.0.0"
 plugins:
     - serverless-python-requirements
     - serverless-offline
+    - serverless-dynamodb-local
 
 custom:
     pythonRequirements:
@@ -35,7 +36,7 @@ provider:
         name: route-rating-serverless-builds-${opt:stage, 'dev'}
         blockPublicAccess: true
     environment:
-        DYNAMODB_TABLE: ${self:service}-${opt:stage, self:provider.stage}
+        DYNAMODB_USERS_TABLE: ${self:service}-users-${opt:stage, self:provider.stage}
         JWT_SECRET: ${env:JWT_SECRET}
         REFRESH_SECRET: ${env:REFRESH_SECRET}
         LOG: TRUE
@@ -48,7 +49,7 @@ provider:
               - dynamodb:PutItem
               - dynamodb:UpdateItem
               - dynamodb:DeleteItem
-          Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.DYNAMODB_TABLE}"
+          Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.DYNAMODB_USERS_TABLE}"
 
 functions:
     # Auth Functions
@@ -117,7 +118,7 @@ functions:
 
 resources:
     Resources:
-        TodosDynamoDbTable:
+        UsersDynamoDBTable:
             Type: 'AWS::DynamoDB::Table'
             DeletionPolicy: Retain
             Properties:
@@ -132,4 +133,4 @@ resources:
                 ProvisionedThroughput:
                     ReadCapacityUnits: 1
                     WriteCapacityUnits: 1
-                TableName: ${self:provider.environment.DYNAMODB_TABLE}
+                TableName: ${self:provider.environment.DYNAMODB_USERS_TABLE}

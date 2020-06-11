@@ -4,10 +4,8 @@
   "description": "Serverless HTTP services for Route Rating.",
   "author": "Luke Shay <https://github.com/LukeShay>",
   "license": "MIT",
-  "dependencies": {
-    "serverless": "^1.67.3"
-  },
   "devDependencies": {
+    "serverless": "^1.67.3",
     "serverless-dynamodb-local": "^0.2.39",
     "serverless-offline": "^6.1.4",
     "serverless-python-requirements": "^5.1.0"

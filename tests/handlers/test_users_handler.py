@@ -1,7 +1,7 @@
 import uuid
 from unittest.mock import patch, Mock
 
-from api.utils.jwt import Jwt
+from api.jwt import Jwt
 from api.users import users_service
 from api.users.user import User
 from api.handlers.users_handler import (
@@ -14,7 +14,6 @@ from tests.test_base import TestBase
 
 from tests.utilities import (
     ApiGatewayEvent,
-    DatabaseResult,
     generate_jwt,
     MockUsersRepository,
 )
@@ -33,7 +32,7 @@ class TestCreateUsersHandlers(TestBase):
             phone_number="9999999999",
             authority=None,
             role=None,
-            user_id=None,
+            user_id=str(uuid.uuid4()),
         )
 
         self.invalid_new_user = User(
@@ -47,7 +46,7 @@ class TestCreateUsersHandlers(TestBase):
             phone_number="999999999",
             authority=None,
             role=None,
-            user_id=None,
+            user_id=str(uuid.uuid4()),
         )
         self.valid_jwt_payload = {
             "email": "lukeshay",
@@ -77,9 +76,9 @@ class TestCreateUsersHandlers(TestBase):
     def test_create_valid_basic_user(
         self, mock_get_user_by_username, mock_get_user_by_email, mock_save
     ):
-        mock_get_user_by_username.return_value = DatabaseResult(None)
-        mock_get_user_by_email.return_value = DatabaseResult(None)
-        mock_save.return_value = DatabaseResult(self.valid_new_user)
+        mock_get_user_by_username.return_value = None
+        mock_get_user_by_email.return_value = None
+        mock_save.return_value = self.valid_new_user
 
         response = OfflineHandler(create_user_handler).handle(
             ApiGatewayEvent(body=self.valid_new_user.as_camel_dict()).as_dict()
@@ -106,8 +105,8 @@ class TestCreateUsersHandlers(TestBase):
     ):
         temp_user = self.valid_new_user
         temp_user.id = "adsf"
-        mock_get_user_by_username.return_value = DatabaseResult(self.valid_new_user)
-        mock_get_user_by_email.return_value = DatabaseResult(self.valid_new_user)
+        mock_get_user_by_username.return_value = self.valid_new_user
+        mock_get_user_by_email.return_value = self.valid_new_user
 
         response = OfflineHandler(create_user_handler).handle(
             ApiGatewayEvent(body=self.valid_new_user.as_camel_dict()).as_dict()
@@ -128,12 +127,12 @@ class TestCreateUsersHandlers(TestBase):
     def test_create_invalid_basic_user(
         self, mock_get_user_by_username, mock_get_user_by_email, mock_save
     ):
-        mock_get_user_by_username.return_value = DatabaseResult(None)
-        mock_get_user_by_email.return_value = DatabaseResult(None)
-        mock_save.return_value = DatabaseResult(self.valid_new_user)
+        mock_get_user_by_username.return_value = None
+        mock_get_user_by_email.return_value = None
+        mock_save.return_value = self.valid_new_user
 
-        response = OfflineHandler(create_user_handler).handle(
-            ApiGatewayEvent(body=self.invalid_new_user.as_camel_dict()).as_dict()
+        response = OfflineHandler(create_user_handler).handle_v2(
+            body=self.invalid_new_user.as_camel_dict()
         )
 
         self.assertEqual(
@@ -153,18 +152,16 @@ class TestCreateUsersHandlers(TestBase):
     def test_create_valid_admin_user(
         self, mock_get_user_by_username, mock_get_user_by_email, mock_save
     ):
-        mock_get_user_by_username.return_value = DatabaseResult(None)
-        mock_get_user_by_email.return_value = DatabaseResult(None)
-        mock_save.return_value = DatabaseResult(self.valid_new_user)
+        mock_get_user_by_username.return_value = None
+        mock_get_user_by_email.return_value = None
+        mock_save.return_value = self.valid_new_user
 
-        response = OfflineHandler(create_admin_user_handler).handle(
-            ApiGatewayEvent(
-                body=self.valid_new_user.as_camel_dict(), headers=self.admin_headers
-            ).as_dict()
+        response = OfflineHandler(create_admin_user_handler).handle_v2(
+            body=self.valid_new_user.as_camel_dict(), headers=self.admin_headers
         )
 
-        self.assertEqual(self.valid_new_user.as_json_response(), response["body"])
         self.assertEqual(200, response["statusCode"])
+        self.assertEqual(self.valid_new_user.as_json_response(), response["body"])
         mock_get_user_by_username.assert_called_once()
         mock_get_user_by_email.assert_called_once()
         mock_save.assert_called_once()
@@ -184,8 +181,8 @@ class TestCreateUsersHandlers(TestBase):
     ):
         temp_user = self.valid_new_user
         temp_user.id = "adsf"
-        mock_get_user_by_username.return_value = DatabaseResult(self.valid_new_user)
-        mock_get_user_by_email.return_value = DatabaseResult(self.valid_new_user)
+        mock_get_user_by_username.return_value = self.valid_new_user
+        mock_get_user_by_email.return_value = self.valid_new_user
 
         response = OfflineHandler(create_admin_user_handler).handle(
             ApiGatewayEvent(
@@ -208,14 +205,12 @@ class TestCreateUsersHandlers(TestBase):
     def test_create_invalid_admin_user(
         self, mock_get_user_by_username, mock_get_user_by_email, mock_save
     ):
-        mock_get_user_by_username.return_value = DatabaseResult(None)
-        mock_get_user_by_email.return_value = DatabaseResult(None)
-        mock_save.return_value = DatabaseResult(self.valid_new_user)
+        mock_get_user_by_username.return_value = None
+        mock_get_user_by_email.return_value = None
+        mock_save.return_value = self.valid_new_user
 
-        response = OfflineHandler(create_admin_user_handler).handle(
-            ApiGatewayEvent(
-                body=self.invalid_new_user.as_camel_dict(), headers=self.admin_headers
-            ).as_dict()
+        response = OfflineHandler(create_admin_user_handler).handle_v2(
+            body=self.invalid_new_user.as_camel_dict(), headers=self.admin_headers
         )
 
         self.assertEqual(
@@ -296,12 +291,10 @@ class TestUpdateUserHandler(TestBase):
         self.basic_user_update.username = self.basic_user.username
         user = self.basic_user_update + self.basic_user
 
-        self.mock_users_repository.get_user_by_id.return_value = DatabaseResult(
-            self.basic_user
-        )
-        self.mock_users_repository.update.return_value = DatabaseResult(user)
+        self.mock_users_repository.get_user_by_id.return_value = self.basic_user
+        self.mock_users_repository.update.return_value = user
 
-        response = self.update_user_handler.handle_v2(
+        response = OfflineHandler(update_user_handler).handle_v2(
             headers=self.basic_user_headers,
             body=self.basic_user_update.as_camel_dict(),
         )
@@ -320,12 +313,10 @@ class TestUpdateUserHandler(TestBase):
         self.basic_user_update.username = self.basic_user.username
         user = self.basic_user_update + self.basic_user
 
-        self.mock_users_repository.get_user_by_id.return_value = DatabaseResult(
-            self.basic_user
-        )
-        self.mock_users_repository.update.return_value = DatabaseResult(user)
+        self.mock_users_repository.get_user_by_id.return_value = self.basic_user
+        self.mock_users_repository.update.return_value = user
 
-        response = self.update_user_handler.handle_v2(
+        response = OfflineHandler(update_user_handler).handle_v2(
             headers=self.basic_user_headers,
             body=self.basic_user_update.as_camel_dict(),
         )
@@ -338,7 +329,7 @@ class TestUpdateUserHandler(TestBase):
         self.mock_users_repository.update.assert_called_once_with(user.as_snake_dict())
 
     def test_update_user_handler_invalid_auth(self):
-        response = self.update_user_handler.handle_v2(
+        response = OfflineHandler(update_user_handler).handle_v2(
             headers=self.basic_user_headers, body=self.admin_user.as_json_response()
         )
 
@@ -346,17 +337,11 @@ class TestUpdateUserHandler(TestBase):
         self.assertEqual({}, response["body"])
 
     def test_update_user_handler_taken_fields(self):
-        self.mock_users_repository.get_user_by_id.return_value = DatabaseResult(
-            self.basic_user
-        )
-        self.mock_users_repository.get_user_by_username.return_value = DatabaseResult(
-            self.admin_user
-        )
-        self.mock_users_repository.get_user_by_email.return_value = DatabaseResult(
-            self.admin_user
-        )
+        self.mock_users_repository.get_user_by_id.return_value = self.basic_user
+        self.mock_users_repository.get_user_by_username.return_value = self.admin_user
+        self.mock_users_repository.get_user_by_email.return_value = self.admin_user
 
-        response = self.update_user_handler.handle_v2(
+        response = OfflineHandler(update_user_handler).handle_v2(
             headers=self.basic_user_headers,
             body=self.basic_user_update.as_json_response(),
         )
@@ -370,11 +355,9 @@ class TestUpdateUserHandler(TestBase):
     def test_update_user_handler_invalid_fields(self):
         self.basic_user_update.email = "email.com"
 
-        self.mock_users_repository.get_user_by_id.return_value = DatabaseResult(
-            self.basic_user
-        )
+        self.mock_users_repository.get_user_by_id.return_value = self.basic_user
 
-        response = self.update_user_handler.handle_v2(
+        response = OfflineHandler(update_user_handler).handle_v2(
             headers=self.basic_user_headers,
             body=self.basic_user_update.as_json_response(),
         )

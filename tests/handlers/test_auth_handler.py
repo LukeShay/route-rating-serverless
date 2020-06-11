@@ -12,7 +12,6 @@ from tests.utilities import (
     ApiGatewayEvent,
     generate_jwt,
     generate_refresh,
-    DatabaseResult,
 )
 import os
 import bcrypt
@@ -93,96 +92,66 @@ class TestAuthHandler(TestBase):
         )
 
     def test_basic_admin_valid_jwt(self):
-        response = basic_auth_handler(
-            ApiGatewayEvent(
-                headers={"Authorization": generate_jwt(self.valid_jwt_payload)}
-            ).as_dict(),
-            None,
+        response = OfflineHandler(basic_auth_handler).handle_v2(
+            headers={"Authorization": generate_jwt(self.valid_jwt_payload)}
         )
 
         self.assertEqual(200, response.get("statusCode", None))
 
     def test_basic_basic_valid_jwt(self):
-        response = basic_auth_handler(
-            ApiGatewayEvent(
-                headers={"Authorization": generate_jwt(self.valid_basic_jwt_payload)}
-            ).as_dict(),
-            None,
+        response = OfflineHandler(basic_auth_handler).handle_v2(
+            headers={"Authorization": generate_jwt(self.valid_basic_jwt_payload)}
         )
 
         self.assertEqual(200, response.get("statusCode", None))
 
     def test_basic_invalid_jwt_no_expires(self):
-        response = basic_auth_handler(
-            ApiGatewayEvent(
-                headers={
-                    "Authorization": generate_jwt(self.invalid_jwt_payload_no_expires)
-                }
-            ).as_dict(),
-            None,
+        response = OfflineHandler(basic_auth_handler).handle_v2(
+            headers={"Authorization": generate_jwt(self.invalid_jwt_payload_no_expires)}
         )
 
         self.assertEqual(403, response.get("statusCode", None))
 
     def test_basic_invalid_jwt_no_email(self):
-        response = basic_auth_handler(
-            ApiGatewayEvent(
-                headers={
-                    "Authorization": generate_jwt(self.invalid_jwt_payload_no_email)
-                }
-            ).as_dict(),
-            None,
+        response = OfflineHandler(basic_auth_handler).handle_v2(
+            headers={"Authorization": generate_jwt(self.invalid_jwt_payload_no_email)}
         )
 
         self.assertEqual(403, response.get("statusCode", None))
 
     def test_basic_invalid_jwt_no_id(self):
-        response = basic_auth_handler(
-            ApiGatewayEvent(
-                headers={"Authorization": generate_jwt(self.invalid_jwt_payload_no_id)}
-            ).as_dict(),
-            None,
+        response = OfflineHandler(basic_auth_handler).handle_v2(
+            headers={"Authorization": generate_jwt(self.invalid_jwt_payload_no_id)}
         )
 
         self.assertEqual(403, response.get("statusCode", None))
 
     def test_basic_invalid_jwt_no_authorities(self):
-        response = basic_auth_handler(
-            ApiGatewayEvent(
-                headers={
-                    "Authorization": generate_jwt(
-                        self.invalid_jwt_payload_no_authorities
-                    )
-                }
-            ).as_dict(),
-            None,
+        response = OfflineHandler(basic_auth_handler).handle_v2(
+            headers={
+                "Authorization": generate_jwt(self.invalid_jwt_payload_no_authorities)
+            }
         )
 
         self.assertEqual(403, response.get("statusCode", None))
 
     def test_basic_invalid_jwt_no_issued_at(self):
-        response = basic_auth_handler(
-            ApiGatewayEvent(
-                headers={
-                    "Authorization": generate_jwt(self.invalid_jwt_payload_no_issued_at)
-                }
-            ).as_dict(),
-            None,
+        response = OfflineHandler(basic_auth_handler).handle_v2(
+            headers={
+                "Authorization": generate_jwt(self.invalid_jwt_payload_no_issued_at)
+            }
         )
 
         self.assertEqual(403, response.get("statusCode", None))
 
     def test_basic_invalid_jwt_wrong_secret(self):
-        response = basic_auth_handler(
-            ApiGatewayEvent(
-                headers={
-                    "Authorization": generate_jwt(
-                        self.valid_jwt_payload,
-                        secret="nmSRM5ERGOE4NR8RE41cdvDeIUecHCjSiRzqztG2Fi1kOqol",
-                    )
-                }
-            ).as_dict(),
-            None,
+        response = OfflineHandler(basic_auth_handler).handle_v2(
+            headers={
+                "Authorization": generate_jwt(
+                    self.valid_jwt_payload,
+                    secret="nmSRM5ERGOE4NR8RE41cdvDeIUecHCjSiRzqztG2Fi1kOqol",
+                )
+            }
         )
 
         self.assertEqual(403, response.get("statusCode", None))
@@ -192,25 +161,19 @@ class TestAuthHandler(TestBase):
         self.assertEqual(403, response.get("statusCode", None))
 
     def test_basic_expired_jwt(self):
-        response = basic_auth_handler(
-            ApiGatewayEvent(
-                headers={"Authorization": generate_jwt(self.expired_jwt_payload,)}
-            ).as_dict(),
-            None,
+        response = OfflineHandler(basic_auth_handler).handle_v2(
+            headers={"Authorization": generate_jwt(self.expired_jwt_payload,)}
         )
         self.assertEqual(403, response.get("statusCode", None))
 
     def test_basic_expired_jwt_with_refresh(self):
-        response = basic_auth_handler(
-            ApiGatewayEvent(
-                headers={
-                    "Authorization": generate_jwt(self.expired_jwt_payload),
-                    "Refresh": generate_jwt(
-                        self.valid_jwt_payload, secret=os.getenv("REFRESH_SECRET")
-                    ),
-                }
-            ).as_dict(),
-            None,
+        response = OfflineHandler(basic_auth_handler).handle_v2(
+            headers={
+                "Authorization": generate_jwt(self.expired_jwt_payload),
+                "Refresh": generate_jwt(
+                    self.valid_jwt_payload, secret=os.getenv("REFRESH_SECRET")
+                ),
+            }
         )
         self.assertEqual(200, response.get("statusCode", None))
         self.assertNotEqual(
@@ -223,116 +186,81 @@ class TestAuthHandler(TestBase):
         self.assertEqual(403, response.get("statusCode", None))
 
     def test_admin_admin_valid_jwt(self):
-        response = admin_auth_handler(
-            ApiGatewayEvent(
-                headers={"Authorization": generate_jwt(self.valid_jwt_payload)}
-            ).as_dict(),
-            None,
+        response = OfflineHandler(admin_auth_handler).handle_v2(
+            headers={"Authorization": generate_jwt(self.valid_jwt_payload)}
         )
 
         self.assertEqual(200, response.get("statusCode", None))
 
     def test_admin_basic_valid_jwt(self):
-        response = admin_auth_handler(
-            ApiGatewayEvent(
-                headers={"Authorization": generate_jwt(self.valid_basic_jwt_payload)}
-            ).as_dict(),
-            None,
+        response = OfflineHandler(admin_auth_handler).handle_v2(
+            headers={"Authorization": generate_jwt(self.valid_basic_jwt_payload)}
         )
 
         self.assertEqual(401, response.get("statusCode", None))
 
     def test_admin_invalid_jwt_no_expires(self):
-        response = admin_auth_handler(
-            ApiGatewayEvent(
-                headers={
-                    "Authorization": generate_jwt(self.invalid_jwt_payload_no_expires)
-                }
-            ).as_dict(),
-            None,
+        response = OfflineHandler(admin_auth_handler).handle_v2(
+            headers={"Authorization": generate_jwt(self.invalid_jwt_payload_no_expires)}
         )
 
         self.assertEqual(403, response.get("statusCode", None))
 
     def test_admin_invalid_jwt_no_email(self):
-        response = admin_auth_handler(
-            ApiGatewayEvent(
-                headers={
-                    "Authorization": generate_jwt(self.invalid_jwt_payload_no_email)
-                }
-            ).as_dict(),
-            None,
+        response = OfflineHandler(admin_auth_handler).handle_v2(
+            headers={"Authorization": generate_jwt(self.invalid_jwt_payload_no_email)}
         )
 
         self.assertEqual(403, response.get("statusCode", None))
 
     def test_admin_invalid_jwt_no_id(self):
-        response = admin_auth_handler(
-            ApiGatewayEvent(
-                headers={"Authorization": generate_jwt(self.invalid_jwt_payload_no_id)}
-            ).as_dict(),
-            None,
+        response = OfflineHandler(admin_auth_handler).handle_v2(
+            headers={"Authorization": generate_jwt(self.invalid_jwt_payload_no_id)}
         )
 
         self.assertEqual(403, response.get("statusCode", None))
 
     def test_admin_invalid_jwt_no_authorities(self):
-        response = admin_auth_handler(
-            ApiGatewayEvent(
-                headers={
-                    "Authorization": generate_jwt(
-                        self.invalid_jwt_payload_no_authorities
-                    )
-                }
-            ).as_dict(),
-            None,
+        response = OfflineHandler(admin_auth_handler).handle_v2(
+            headers={
+                "Authorization": generate_jwt(self.invalid_jwt_payload_no_authorities)
+            }
         )
-
         self.assertEqual(403, response.get("statusCode", None))
 
     def test_admin_invalid_jwt_no_issued_at(self):
-        response = admin_auth_handler(
-            ApiGatewayEvent(
-                headers={
-                    "Authorization": generate_jwt(self.invalid_jwt_payload_no_issued_at)
-                }
-            ).as_dict(),
-            None,
+        response = OfflineHandler(admin_auth_handler).handle_v2(
+            headers={
+                "Authorization": generate_jwt(self.invalid_jwt_payload_no_issued_at)
+            }
         )
 
         self.assertEqual(403, response.get("statusCode", None))
 
     def test_admin_invalid_jwt_wrong_secret(self):
-        response = admin_auth_handler(
-            ApiGatewayEvent(
-                headers={
-                    "Authorization": generate_jwt(
-                        self.valid_jwt_payload,
-                        secret="nmSRM5ERGOE4NR8RE41cdvDeIUecHCjSiRzqztG2Fi1kOqol",
-                    )
-                }
-            ).as_dict(),
-            None,
+        response = OfflineHandler(admin_auth_handler).handle_v2(
+            headers={
+                "Authorization": generate_jwt(
+                    self.valid_jwt_payload,
+                    secret="nmSRM5ERGOE4NR8RE41cdvDeIUecHCjSiRzqztG2Fi1kOqol",
+                )
+            }
         )
 
         self.assertEqual(403, response.get("statusCode", None))
 
     def test_admin_no_jwt(self):
-        response = admin_auth_handler(ApiGatewayEvent(headers={}).as_dict(), None,)
+        response = OfflineHandler(admin_auth_handler).handle_v2(headers={})
         self.assertEqual(403, response.get("statusCode", None))
 
     def test_admin_expired_jwt(self):
-        response = admin_auth_handler(
-            ApiGatewayEvent(
-                headers={"Authorization": generate_jwt(self.expired_jwt_payload)}
-            ).as_dict(),
-            None,
+        response = OfflineHandler(admin_auth_handler).handle_v2(
+            headers={"Authorization": generate_jwt(self.expired_jwt_payload)}
         )
         self.assertEqual(403, response.get("statusCode", None))
 
     def test_admin_unexpected_exception(self):
-        response = admin_auth_handler(ApiGatewayEvent().as_dict(), None)
-
+        response = OfflineHandler(admin_auth_handler).handle_v2()
         self.assertEqual(403, response.get("statusCode", None))
 
     def test_get_refresh_token(self):
@@ -348,12 +276,10 @@ class TestAuthHandler(TestBase):
 
     @patch("api.users.users_repository.UsersRepository.get_user_by_email")
     def test_login_valid_credentials(self, mock_get_user_by_email):
-        mock_get_user_by_email.return_value = DatabaseResult(self.test_user)
+        mock_get_user_by_email.return_value = self.test_user
 
-        response = OfflineHandler(login_handler).handle(
-            ApiGatewayEvent(
-                body={"email": self.test_user.email, "password": self.test_password,}
-            ).as_dict()
+        response = OfflineHandler(login_handler).handle_v2(
+            body={"email": self.test_user.email, "password": self.test_password,}
         )
 
         self.assertEqual(200, response.get("statusCode", None))
@@ -366,12 +292,8 @@ class TestAuthHandler(TestBase):
 
     @patch("api.users.users_repository.UsersRepository.get_user_by_email")
     def test_login_invalid_credentials(self, mock_get_user_by_email):
-        mock_get_user_by_email.return_value = DatabaseResult(self.test_user)
-
-        response = OfflineHandler(login_handler).handle(
-            ApiGatewayEvent(
-                body={"email": self.test_user.email, "password": "EYYYEYE",}
-            ).as_dict()
+        mock_get_user_by_email.return_value = self.test_user
+        response = OfflineHandler(login_handler).handle_v2(
+            body={"email": self.test_user.email, "password": "EYYYEYE"}
         )
-
         self.assertEqual(403, response.get("statusCode", None))

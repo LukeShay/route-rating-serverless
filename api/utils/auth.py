@@ -2,7 +2,7 @@ from typing import Optional, Tuple
 
 from munch import Munch
 import logging
-from api.utils.jwt import Jwt, JwtPayload
+from api.jwt import Jwt, JwtPayload
 
 ADMIN_AUTHORITY = "ADMIN"
 BASIC_AUTHORITY = "BASIC"

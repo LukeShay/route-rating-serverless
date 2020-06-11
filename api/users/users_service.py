@@ -13,10 +13,10 @@ SALT = bcrypt.gensalt(rounds=10, prefix=b"2a")
 
 
 class UsersService:
-    def __init__(self, database_session=None):
+    def __init__(self):
         self.log = logging.getLogger(self.__class__.__name__)
         self.log.debug("Initializing")
-        self.users_repository = UsersRepository(database_session)
+        self.users_repository = UsersRepository()
         self.jwt = Jwt()
 
     def login(self, user) -> Tuple[Optional[User], Optional[Dict]]:
@@ -48,20 +48,16 @@ class UsersService:
     def get_user_by_username(self, request_user: User) -> Optional[User]:
         self.log.debug(f"Getting user by username:\n{request_user.as_camel_dict()}")
 
-        result = self.users_repository.get_user_by_username(request_user.username)
-        user = User.from_snake_dict(result.as_dict())
-        result.free()
+        user = self.users_repository.get_user_by_username(request_user.username)
 
-        return user if user.id and user.id != "" else None
+        return user if user and user.id and user.id != "" else None
 
     def get_user_by_email(self, request_user: User) -> Optional[User]:
         self.log.debug(f"Getting user by email:\n{request_user.as_camel_dict()}")
 
-        result = self.users_repository.get_user_by_email(request_user.email)
-        user = User.from_snake_dict(result.as_dict())
-        result.free()
+        user = self.users_repository.get_user_by_email(request_user.email)
 
-        return user if user.id and user.id != "" else None
+        return user if user and user.id and user.id != "" else None
 
     @staticmethod
     def check_passwords(password: str, hashed_password: str) -> bool:
@@ -71,15 +67,13 @@ class UsersService:
     def encrypt_password(password: str) -> str:
         return bcrypt.hashpw(password.encode("utf8"), SALT).decode("utf8")
 
-    def create_user(self, new_user: User) -> User:
+    def create_user(self, new_user: User) -> Optional[User]:
         new_user.id = str(uuid.uuid4())
         new_user.password = self.encrypt_password(new_user.password)
 
-        result = self.users_repository.save(new_user)
-        user = User.from_snake_dict(result.as_dict())
-        result.free()
+        user = self.users_repository.save(new_user)
 
-        return user
+        return user if user and user.id and user.id != "" else None
 
     @staticmethod
     def valid_email(user: User) -> bool:
@@ -113,17 +107,13 @@ class UsersService:
     def get_user_by_id(self, user) -> Optional[User]:
         self.log.debug(f"Getting user by id:\n{user.as_camel_dict()}")
 
-        result = self.users_repository.get_user_by_id(user.id)
-        user = User.from_snake_dict(result.as_dict())
-        result.free()
+        user = self.users_repository.get_user_by_id(user.id)
 
-        return user if user.id and user.id != "" else None
+        return user if user and user.id and user.id != "" else None
 
     def update_user(self, user) -> Optional[User]:
         self.log.debug(f"Updating user:\n{user.as_camel_dict()}")
 
-        result = self.users_repository.update(user.as_snake_dict())
-        user = User.from_snake_dict(result.as_dict())
-        result.free()
+        user = self.users_repository.update(user.as_snake_dict())
 
-        return user if user.id and user.id != "" else None
+        return user if user and user.id and user.id != "" else None
