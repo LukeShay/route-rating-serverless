@@ -9,9 +9,9 @@ from api.utils.api_gateway import ApiGatewayEvent
 
 
 def validate_kwargs(*args):
-    logging.debug("ARGS: " + str(args))
-    if len(args[0][0]) != 2:
-        raise InvalidRequestException
+    logging.debug("ARGS: " + str(args[0][0]))
+    # if len(args[0][0]) != 2:
+    #     raise InvalidRequestException
 
     return args[0][0], None
 
@@ -94,8 +94,8 @@ def setup_logger():
     stdout_handler = logging.StreamHandler(sys.stdout)
     stdout_handler.setLevel(logging.ERROR)
 
-    if os.getenv("LOG", None) == "TRUE" or os.getenv("TEST_RUN") == "TRUE":
-        stdout_handler.setLevel(logging.DEBUG)
+    # if os.getenv("LOG", None) == "TRUE" or os.getenv("TEST_RUN") == "TRUE":
+    stdout_handler.setLevel(logging.DEBUG)
 
     stdout_handler.setFormatter(basic_format)
     handlers.append(stdout_handler)

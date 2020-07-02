@@ -17,12 +17,13 @@
     "test:int:prod": "./tests/integration/test.sh test-remote prod",
     "update-workflow": "./.github/convert.sh",
     "format": "python -m black api/ tests/",
-    "lint": "python -m black --check api/ tests/ && python -m mypy api --ignore-missing-imports --no-warn-no-return --warn-unreachable"
+    "lint": "python -m black --check api/ tests/ && python -m mypy api --ignore-missing-imports --no-warn-no-return --warn-unreachable",
+    "start": "serverless offline start --location ."
   },
     "devDependencies": {
-    "serverless": "^1.67.3",
+    "serverless": "^1.74.1",
     "serverless-dynamodb-local": "^0.2.39",
-    "serverless-offline": "^6.1.4",
+    "serverless-offline": "^6.4.0",
     "serverless-python-requirements": "^5.1.0"
   },
   "tags": [

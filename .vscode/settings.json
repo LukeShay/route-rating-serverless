@@ -1,0 +1,10 @@
+{
+    "python.linting.enabled": true,
+    "python.formatting.provider": "black",
+    "python.pythonPath": "~/dev/personal/route-rating-serverless/.venv/bin/python",
+    "python.linting.pylintEnabled": true,
+    "cSpell.words": [
+        "getenv",
+        "pynamodb"
+    ]
+}

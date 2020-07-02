@@ -4,4 +4,5 @@ mock
 munch
 Py3DNS
 PyJWT
+pynamodb
 validate_email

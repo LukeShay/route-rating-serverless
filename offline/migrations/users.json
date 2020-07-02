@@ -1,0 +1,21 @@
+{
+  "Table": {
+    "TableName": "route-rating-serverless-users-dev",
+    "KeySchema": [
+      {
+        "AttributeName": "Id",
+        "AttributeType": "HASH"
+      }
+    ],
+    "AttributeDefinitions": [
+      {
+        "AttributeName": "Id",
+        "AttributeType": "S"
+      }
+    ],
+    "ProvisionedThroughput": {
+      "ReadCapacityUnits": 1,
+      "WriteCapacityUnits": 1
+    }
+  }
+}

@@ -1,32 +1,28 @@
 from api.users.user import User
-from api.users.users_repository import UsersRepository
 from api.utils.auth import Jwt
 from api.utils.regex import RegexUtils
 from validate_email import validate_email
 from typing import Optional, Dict, Tuple
 import bcrypt
-import logging
 import uuid
-
+from api.utils.decorators import log
 
 SALT = bcrypt.gensalt(rounds=10, prefix=b"2a")
 
 
 class UsersService:
     def __init__(self):
-        self.log = logging.getLogger(self.__class__.__name__)
-        self.log.debug("Initializing")
-        self.users_repository = UsersRepository()
         self.jwt = Jwt()
+        if not User.exists():
+            User.create_table()
 
+    # @log()
     def login(self, user) -> Tuple[Optional[User], Optional[Dict]]:
         """
         Gets the user from the database an validates the passwords match.
         :param user: The user object. Must have username or email and password
         :return: The Tuple[Optional[User], Optional[Dict]]
         """
-        self.log.debug(f"Attempting login:\n{user.as_camel_dict()}")
-
         user_result = self.get_user_by_email(user)
 
         if not user_result or not self.check_passwords(
@@ -45,48 +41,51 @@ class UsersService:
             },
         )
 
-    def get_user_by_username(self, request_user: User) -> Optional[User]:
-        self.log.debug(f"Getting user by username:\n{request_user.as_camel_dict()}")
-
-        user = self.users_repository.get_user_by_username(request_user.username)
-
-        return user if user and user.id and user.id != "" else None
-
+    # @log()
     def get_user_by_email(self, request_user: User) -> Optional[User]:
-        self.log.debug(f"Getting user by email:\n{request_user.as_camel_dict()}")
+        user_iterator = User.scan(User.user_id == request_user.user_id)
 
-        user = self.users_repository.get_user_by_email(request_user.email)
+        if user_iterator.total_count == 0:
+            return None
 
-        return user if user and user.id and user.id != "" else None
+        user = user_iterator.next()
 
+        return user if user and user.user_id and user.user_id != "" else None
+
+    # @log()
     @staticmethod
     def check_passwords(password: str, hashed_password: str) -> bool:
         return bcrypt.checkpw(password.encode("utf8"), hashed_password.encode("utf8"))
 
+    # @log()
     @staticmethod
     def encrypt_password(password: str) -> str:
         return bcrypt.hashpw(password.encode("utf8"), SALT).decode("utf8")
 
+    # @log()
     def create_user(self, new_user: User) -> Optional[User]:
-        new_user.id = str(uuid.uuid4())
+        new_user.user_id = str(uuid.uuid4())
         new_user.password = self.encrypt_password(new_user.password)
 
-        user = self.users_repository.save(new_user)
+        user = new_user.save()
 
-        return user if user and user.id and user.id != "" else None
+        return user if user and user.user_id and user.user_id != "" else None
 
+    # @log()
     @staticmethod
     def valid_email(user: User) -> bool:
         return RegexUtils.valid_email(user.email) and validate_email(
             user.email, verify=True
         )
 
+    # @log()
     @staticmethod
     def valid_username(user: User) -> bool:
         return (
             not RegexUtils.special_character(user.username) and len(user.username) > 0
         )
 
+    # @log()
     @staticmethod
     def valid_phone_number(user: User) -> bool:
         return (
@@ -94,6 +93,7 @@ class UsersService:
             and len(user.phone_number) == 10
         )
 
+    # @log()
     @staticmethod
     def valid_password(user: User) -> bool:
         return (
@@ -104,16 +104,19 @@ class UsersService:
             and RegexUtils.lowercase(user.password)
         )
 
-    def get_user_by_id(self, user) -> Optional[User]:
-        self.log.debug(f"Getting user by id:\n{user.as_camel_dict()}")
+    # @log()
+    def get_user_by_id(self, request_user: User) -> Optional[User]:
+        user_iterator = User.scan(User.user_id == request_user.user_id)
 
-        user = self.users_repository.get_user_by_id(user.id)
+        if user_iterator.total_count == 0:
+            return None
 
-        return user if user and user.id and user.id != "" else None
+        user = user_iterator.next()
 
-    def update_user(self, user) -> Optional[User]:
-        self.log.debug(f"Updating user:\n{user.as_camel_dict()}")
+        return user if user and user.user_id and user.user_id != "" else None
 
-        user = self.users_repository.update(user.as_snake_dict())
+    # @log()
+    def update_user(self, updated_user: User) -> Optional[User]:
+        user = updated_user.save()
 
-        return user if user and user.id and user.id != "" else None
+        return user if user and user.user_id and user.user_id != "" else None
